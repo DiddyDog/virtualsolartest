@@ -21,7 +21,7 @@ struct ContentView: View {
                 Color("BackgroundColor").ignoresSafeArea()
                 
                 VStack{
-                    Text("Login")
+                    Text("Dieter")
                         .font(.largeTitle)
                         .foregroundColor(Color.white)
                         .multilineTextAlignment(.center)
@@ -59,7 +59,8 @@ struct ContentView: View {
                     .frame(width:300, height:50)
                     .background(Color.white)
                     .cornerRadius(8)
-                    .onTapGesture {
+                    .onTapGesture
+                    {
                         
                     }
                         
