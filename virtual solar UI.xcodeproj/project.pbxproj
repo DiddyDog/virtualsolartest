@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		0455F6D32D856FD8004424E8 /* virtual solar UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "virtual solar UI.xcodeproj"; sourceTree = "<group>"; };
+		0455F72F2D8571E7004424E8 /* virtual solar UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "virtual solar UI.xcodeproj"; sourceTree = "<group>"; };
+		04EB6A8E2D85463C00359050 /* virtual solar UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "virtual solar UI.xcodeproj"; sourceTree = "<group>"; };
+		04EB6B252D856EE700359050 /* virtual solar UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "virtual solar UI.xcodeproj"; sourceTree = "<group>"; };
 		04F3C0562D70138800234B5D /* virtual solar UI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "virtual solar UI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -29,6 +33,34 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0455F6D42D856FD8004424E8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0455F7302D8571E7004424E8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		04EB6A8F2D85463C00359050 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		04EB6B262D856EE700359050 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		04F3C04D2D70138800234B5D = {
 			isa = PBXGroup;
 			children = (
@@ -97,6 +129,24 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 04F3C0572D70138800234B5D /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 0455F6D42D856FD8004424E8 /* Products */;
+					ProjectRef = 0455F6D32D856FD8004424E8 /* virtual solar UI.xcodeproj */;
+				},
+				{
+					ProductGroup = 04EB6B262D856EE700359050 /* Products */;
+					ProjectRef = 04EB6B252D856EE700359050 /* virtual solar UI.xcodeproj */;
+				},
+				{
+					ProductGroup = 0455F7302D8571E7004424E8 /* Products */;
+					ProjectRef = 0455F72F2D8571E7004424E8 /* virtual solar UI.xcodeproj */;
+				},
+				{
+					ProductGroup = 04EB6A8F2D85463C00359050 /* Products */;
+					ProjectRef = 04EB6A8E2D85463C00359050 /* virtual solar UI.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				04F3C0552D70138800234B5D /* virtual solar UI */,
@@ -255,6 +305,7 @@
 				DEVELOPMENT_TEAM = 5MPNFVQ99J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "virtual-solar-UI-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,6 +335,7 @@
 				DEVELOPMENT_TEAM = 5MPNFVQ99J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "virtual-solar-UI-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
