@@ -1,27 +1,24 @@
-//
-//  ContentView.swift
-//  virtual solar UI
-//
-//  Created by Lachlan Jiang on 27/2/2025.
-//
-
 import SwiftUI
 
-struct ContentView: View {
+struct EmailLoginView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var wrongUsername = 0
     @State private var wrongPassword = 0
     @State private var showingLoginScreen = false
-
+    
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color("BackgroundColor").ignoresSafeArea()
                 
                 VStack {
+                    Image("SolarCloudLogo")
+                    Image("SolarCloudName")
+                       
+                    
                     Text("Login")
-                        .font(.largeTitle)
+                        .font(Font.custom("Poppins-Light", size: 40))
                         .foregroundColor(Color.white)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 100)
@@ -30,6 +27,7 @@ struct ContentView: View {
                         .foregroundColor(Color.gray)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 50)
+                        .font(Font.custom("Poppins-Light", size: 16))
                     
                     TextField("Email Address", text: $email)
                         .padding()
@@ -43,6 +41,7 @@ struct ContentView: View {
                         .foregroundColor(Color.gray)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 50)
+                        .font(Font.custom("Poppins-Light", size: 16))
                     
                     SecureField("Password", text: $password)
                         .padding()
@@ -55,23 +54,22 @@ struct ContentView: View {
                     Button("Login") {
                         authenticateUser()
                     }
-                    .padding()
                     .foregroundColor(Color("AccentColor3"))
                     .frame(width: 300, height: 50)
                     .background(Color.white)
                     .cornerRadius(8)
+                    .padding(.top, 30.0)
                     
                     if wrongUsername > 0 || wrongPassword > 0 {
                         Text("Incorrect Email or Password")
                             .foregroundColor(.red)
                     }
-                    
-                    NavigationLink(destination: Text("You are logged in @\(email)"), isActive: $showingLoginScreen) {
-                        EmptyView()
-                    }
                 }
             }
             .navigationBarBackButtonHidden(true)
+            .navigationDestination(isPresented: $showingLoginScreen) {
+                DashIconView()
+            }
         }
     }
     
@@ -86,5 +84,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    EmailLoginView()
 }
