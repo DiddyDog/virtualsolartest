@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 struct EmailSignUpView: View {
     var body: some View {

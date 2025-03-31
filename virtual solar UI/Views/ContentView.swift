@@ -17,7 +17,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   }
 }
 
-@main
 struct ContentView: View {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var body: some View {
