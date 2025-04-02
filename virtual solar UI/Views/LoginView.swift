@@ -11,69 +11,75 @@ struct LoginView: View {
     @State private var selectedIndex = 0
     
     var body: some View {
-        ZStack {
-            // Background color (dark gradient effect)
-            LinearGradient(gradient: Gradient(colors: [Color.black, Color("DarkGray")]), startPoint: .top, endPoint: .bottom)
+        NavigationStack {
+            ZStack {
+                // Background gradient
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: Color("AccentColor4"), location: 0.0),  //top color
+                        .init(color: Color("BackgroundColor"), location: 0.5),  //middle color
+                        .init(color: Color("AccentColor4"), location: 1.0)   //bottom color
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
                 .ignoresSafeArea()
-            
-            VStack {
-                Spacer()
                 
-                // Marketing Slideshow
-                TabView(selection: $selectedIndex) {
-                    ForEach(0..<slides.count, id: \.self) { index in
-                        SlideView(data: slides[index])
-                    }
-                }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // Hide default indicators
-                .frame(height: 250)
-
-                // Custom Page Indicators
-                HStack(spacing: 5) {
-                    ForEach(0..<slides.count, id: \.self) { index in
-                        Circle()
-                            .fill(index == selectedIndex ? Color.green : Color.gray)
-                            .frame(width: 6, height: 6)
-                    }
-                }
-                .padding(.top, 10)
-
-                Spacer()
-
-                // Social Media Login Buttons
-                VStack(spacing: 10) {
-                    SocialLoginButton(title: "Continue with Google", icon: "globe")
-                    SocialLoginButton(title: "Continue with Apple", icon: "applelogo")
-                    SocialLoginButton(title: "Continue with Facebook", icon: "facebook")
-                }
-
-                // Email & Login Options
-                HStack {
-                    Button(action: {
-                        // Handle email sign-in
-                    }) {
-                        Text("Continue with email")
-                            .font(.body)
-                            .foregroundColor(.white)
-                    }
-
+                VStack {
                     Spacer()
-
-                    Button(action: {
-                        // Handle login
-                    }) {
-                        Text("Login")
-                            .font(.body)
-                            .foregroundColor(.white)
-                            .bold()
+                    
+                    // Marketing Slideshow
+                    TabView(selection: $selectedIndex) {
+                        ForEach(0..<slides.count, id: \.self) { index in
+                            SlideView(data: slides[index])
+                        }
                     }
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // Hide default indicators
+                    .frame(height: 250)
+                    
+                    // Custom Page Indicators
+                    HStack(spacing: 5) {
+                        ForEach(0..<slides.count, id: \.self) { index in
+                            Circle()
+                                .fill(index == selectedIndex ? Color("AccentColor1") : Color.white)
+                                .frame(width: 6, height: 6)
+                        }
+                    }
+                    .padding(.top, 10)
+                    
+                    Spacer()
+                    
+                    // Social Media Login Buttons
+                    VStack(spacing: 10) {
+                        SocialLoginButton(title: "Continue with Google", icon: "globe")
+                        SocialLoginButton(title: "Continue with Apple", icon: "applelogo")
+                        SocialLoginButton(title: "Continue with Facebook", icon: "facebook")
+                    }
+                    
+                    // Email & Login Options
+                    HStack {
+                        NavigationLink(destination: EmailSignUpView()) {
+                            Text("Continue with email")
+                                .font(.body)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Spacer()
+                        
+                        NavigationLink(destination: EmailLoginView()) {
+                            Text("Login")
+                                .font(.body)
+                                .foregroundColor(.white)
+                                .bold()
+                        }
+                    }
+                    .padding(.horizontal, 40)
+                    .padding(.top, 10)
+                    
+                    Spacer()
                 }
-                .padding(.horizontal, 40)
-                .padding(.top, 10)
-
-                Spacer()
+                .padding()
             }
-            .padding()
         }
     }
 }
@@ -88,7 +94,7 @@ struct SlideData {
 // MARK: - Slide View
 struct SlideView: View {
     let data: SlideData
-
+    
     var body: some View {
         VStack {
             Image(systemName: data.image) // Placeholder for solar logo
@@ -101,7 +107,7 @@ struct SlideView: View {
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .padding(.top, 10)
-
+            
             Text(data.description)
                 .font(.body)
                 .foregroundColor(.gray)

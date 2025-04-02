@@ -17,54 +17,59 @@ struct OnBoardView: View {
                 LoginView() // Replace with your main screen
             } else {
                 ZStack {
-                    // Background Gradient
-                    LinearGradient(gradient: Gradient(colors: [Color("AccentColor4"), Color("BackgroundColor").opacity(0.8)]),
-                                   startPoint: .top,
-                                   endPoint: .bottom)
-                    .ignoresSafeArea()
-                    
-                    VStack {
-                        // App Logo
-                        Image("SolarCloudLogo") // Ensure you add this image to Assets
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 200, height: 200)
-                            .opacity(opacity)
-                            .onAppear {
-                                withAnimation(.easeIn(duration: 1.5)) {
-                                    opacity = 1.0
-                                }
-                            }
+                    ZStack {
+                        //background gradient
+                        LinearGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: Color("AccentColor4"), location: 0.0),  //top color
+                                .init(color: Color("BackgroundColor"), location: 0.5),  //middle color
+                                .init(color: Color("AccentColor4"), location: 1.0)   //bottom color
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .ignoresSafeArea()
                         
-                        // App Name
-                        Text("SOLAR")
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.yellow)
-                        + Text("CLOUD")
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.gray)
+                        VStack {
+                            // App Logo
+                            Image("SolarCloudLogo") // Ensure you add this image to Assets
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 200, height: 200)
+                                .opacity(opacity)
+                                .onAppear {
+                                    withAnimation(.easeIn(duration: 1.5)) {
+                                        opacity = 1.0
+                                    }
+                                }
+                            
+                            // App Name
+                            Text("SOLAR")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.yellow)
+                            + Text("CLOUD")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.gray)
+                        }
                     }
-                }
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        withAnimation {
-                            isActive = true
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            withAnimation {
+                                isActive = true
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
-
-// Main App View Placeholder
-
-
-struct OnBoardView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnBoardView()
+    
+    // Main App View Placeholder
+    
+    
+    struct OnBoardView_Previews: PreviewProvider {
+        static var previews: some View {
+            OnBoardView()
+        }
     }
 }
-
-
-
