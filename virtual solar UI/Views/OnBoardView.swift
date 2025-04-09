@@ -14,7 +14,7 @@ struct OnBoardView: View {
     var body: some View {
         NavigationStack {
             if isActive {
-                LoginView() // Replace with your main screen
+                LoginView() //replace with your main screen
             } else {
                 ZStack {
                     ZStack {
@@ -31,8 +31,8 @@ struct OnBoardView: View {
                         .ignoresSafeArea()
                         
                         VStack {
-                            // App Logo
-                            Image("SolarCloudLogo") // Ensure you add this image to Assets
+                            //logo
+                            Image("SolarCloudLogo") //Ensure you add this image to Assets
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 200, height: 200)
@@ -43,7 +43,7 @@ struct OnBoardView: View {
                                     }
                                 }
                             
-                            // App Name
+                            //app name
                             Text("SOLAR")
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundColor(.yellow)
@@ -63,9 +63,6 @@ struct OnBoardView: View {
             }
         }
     }
-    
-    // Main App View Placeholder
-    
     
     struct OnBoardView_Previews: PreviewProvider {
         static var previews: some View {
