@@ -23,7 +23,6 @@ struct EmailSignUpView: View {
                 
                 VStack {
                     Image("SolarCloudLogo")
-                        .resizable()
                     Image("SolarCloudName")
                     
                     Text("Sign Up")
