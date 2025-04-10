@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseCore
 
 struct EmailLoginView: View {
     @State private var email = ""
@@ -6,6 +7,7 @@ struct EmailLoginView: View {
     @State private var wrongUsername = 0
     @State private var wrongPassword = 0
     @State private var showingLoginScreen = false
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         NavigationStack {
@@ -15,7 +17,6 @@ struct EmailLoginView: View {
                 VStack {
                     Image("SolarCloudLogo")
                     Image("SolarCloudName")
-                       
                     
                     Text("Login")
                         .font(Font.custom("Poppins-Light", size: 40))
@@ -67,6 +68,18 @@ struct EmailLoginView: View {
                 }
             }
             .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                        }
+                        .foregroundStyle(Color.white)
+                    }
+                }
+            }
             .navigationDestination(isPresented: $showingLoginScreen) {
                 DashIconView()
             }
@@ -84,5 +97,7 @@ struct EmailLoginView: View {
 }
 
 #Preview {
-    EmailLoginView()
+    NavigationStack {
+        EmailLoginView()
+    }
 }
