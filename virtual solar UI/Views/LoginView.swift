@@ -1,4 +1,10 @@
 import SwiftUI
+import FirebaseAuth
+import GoogleSignInSwift
+import GoogleSignIn
+import FacebookLogin
+import FirebaseCore
+
 
 struct LoginView: View {
     let slides = [
@@ -9,35 +15,34 @@ struct LoginView: View {
     ]
     
     @State private var selectedIndex = 0
-    
+    @State private var isLoggedIn = false
+    @State private var loginError: String?
+
     var body: some View {
         NavigationStack {
             ZStack {
-                //background
                 LinearGradient(
                     gradient: Gradient(stops: [
-                        .init(color: Color("AccentColor4"), location: 0.0),  //top color
-                        .init(color: Color("BackgroundColor"), location: 0.5),  //middle color
-                        .init(color: Color("AccentColor4"), location: 1.0)   //bottom color
+                        .init(color: Color("AccentColor4"), location: 0.0),
+                        .init(color: Color("BackgroundColor"), location: 0.5),
+                        .init(color: Color("AccentColor4"), location: 1.0)
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
-                
+
                 VStack {
                     Spacer()
-                    
-                    //slides
+
                     TabView(selection: $selectedIndex) {
                         ForEach(0..<slides.count, id: \.self) { index in
                             SlideView(data: slides[index])
                         }
                     }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // Hide default indicators
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     .frame(height: 250)
-                    
-                    //slideshow indicator
+
                     HStack(spacing: 5) {
                         ForEach(0..<slides.count, id: \.self) { index in
                             Circle()
@@ -46,26 +51,34 @@ struct LoginView: View {
                         }
                     }
                     .padding(.top, 10)
-                    
+
                     Spacer()
-                    
-                    //social media login
+
+                    // Social media login
                     VStack(spacing: 10) {
-                        SocialLoginButton(title: "Continue with Google", icon: "globe")
-                        SocialLoginButton(title: "Continue with Apple", icon: "applelogo")
-                        SocialLoginButton(title: "Continue with Facebook", icon: "facebook")
+                        SocialLoginButton(title: "Continue with Google", icon: "globe") {
+                            signInWithGoogle()
+                        }
+
+                        SocialLoginButton(title: "Continue with Apple", icon: "applelogo") {
+                            // Apple login not implemented yet
+                        }
+
+                        SocialLoginButton(title: "Continue with Facebook", icon: "facebook") {
+                            signInWithFacebook()
+                        }
                     }
-                    
-                    //email login
+
+                    // Email login
                     HStack {
                         NavigationLink(destination: EmailSignUpView()) {
                             Text("Continue with email")
                                 .font(.body)
                                 .foregroundColor(.white)
                         }
-                        
+
                         Spacer()
-                        
+
                         NavigationLink(destination: EmailLoginView()) {
                             Text("Login")
                                 .font(.body)
@@ -75,39 +88,110 @@ struct LoginView: View {
                     }
                     .padding(.horizontal, 40)
                     .padding(.top, 10)
-                    
+
                     Spacer()
+
+                    // Error Message
+                    if let error = loginError {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .padding()
+                    }
                 }
                 .padding()
+
+                // Navigate to dashboard after login
+                NavigationLink("", destination: DashIconView(), isActive: $isLoggedIn)
+            }
+        }
+    }
+
+    // MARK: Google Sign-In
+    func signInWithGoogle() {
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+
+        let config = GIDConfiguration(clientID: clientID)
+
+        if let rootViewController = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene }).first?.windows.first?.rootViewController {
+
+            GIDSignIn.sharedInstance.configuration = config
+            GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { result, error in
+                if let error = error {
+                    loginError = "Google login failed: \(error.localizedDescription)"
+                    return
+                }
+
+                guard let user = result?.user,
+                      let idToken = user.idToken?.tokenString else {
+                    loginError = "Google token missing"
+                    return
+                }
+
+                let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                               accessToken: user.accessToken.tokenString)
+
+                Auth.auth().signIn(with: credential) { _, error in
+                    if let error = error {
+                        loginError = "Firebase error: \(error.localizedDescription)"
+                    } else {
+                        isLoggedIn = true
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: Facebook Login
+    func signInWithFacebook() {
+        let loginManager = LoginManager()
+        loginManager.logIn(permissions: ["email"], from: nil) { result, error in
+            if let error = error {
+                loginError = "Facebook login failed: \(error.localizedDescription)"
+                return
+            }
+
+            guard let token = AccessToken.current?.tokenString else {
+                loginError = "Facebook token missing"
+                return
+            }
+
+            let credential = FacebookAuthProvider.credential(withAccessToken: token)
+
+            Auth.auth().signIn(with: credential) { _, error in
+                if let error = error {
+                    loginError = "Firebase error: \(error.localizedDescription)"
+                } else {
+                    isLoggedIn = true
+                }
             }
         }
     }
 }
 
-// MARK: slide data
+// MARK: - Slide & Social Button Views
 struct SlideData {
     let image: String
     let title: String
     let description: String
 }
 
-// MARK: slide view
 struct SlideView: View {
     let data: SlideData
-    
+
     var body: some View {
         VStack {
-            Image(systemName: data.image) // Placeholder for solar logo
+            Image(systemName: data.image)
                 .font(.system(size: 50))
                 .foregroundColor(.orange)
-            
+
             Text(data.title)
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .padding(.top, 10)
-            
+
             Text(data.description)
                 .font(.body)
                 .foregroundColor(.gray)
@@ -118,15 +202,13 @@ struct SlideView: View {
     }
 }
 
-// MARK: custom button for social login
 struct SocialLoginButton: View {
     var title: String
     var icon: String
-    
+    var action: () -> Void
+
     var body: some View {
-        Button(action: {
-            //handle social login action
-        }) {
+        Button(action: action) {
             HStack {
                 Image(systemName: icon)
                     .font(.title2)
