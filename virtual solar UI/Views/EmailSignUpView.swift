@@ -11,6 +11,12 @@ struct EmailSignUpView: View {
     @State private var signupErrorMessage: String?
     @Environment(\.dismiss) var dismiss
 
+    @FocusState private var focusedField: Field?
+    
+    enum Field {
+        case email, password, confirmPassword
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -38,7 +44,12 @@ struct EmailSignUpView: View {
                         .background(Color("AccentColor3"))
                         .cornerRadius(8)
                         .foregroundColor(.white)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color("AccentColor1"), lineWidth: 2))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(focusedField == .email ? Color("AccentColor1") : Color.clear, lineWidth: 2)
+                        )
+                        .focused($focusedField, equals: .email)
+                    
 
                     Text("Password")
                         .foregroundColor(Color.gray)
@@ -52,8 +63,12 @@ struct EmailSignUpView: View {
                         .background(Color("AccentColor3"))
                         .cornerRadius(8)
                         .foregroundColor(.white)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color("AccentColor1"), lineWidth: 2))
-
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(focusedField == .password ? Color("AccentColor1") : Color.clear, lineWidth: 2)
+                        )
+                        .focused($focusedField, equals: .password)
+                    
                     Text("Confirm Password")
                         .foregroundColor(Color.gray)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -66,8 +81,12 @@ struct EmailSignUpView: View {
                         .background(Color("AccentColor3"))
                         .cornerRadius(8)
                         .foregroundColor(.white)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color("AccentColor1"), lineWidth: 2))
-
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(focusedField == .confirmPassword ? Color("AccentColor1") : Color.clear, lineWidth: 2)
+                        )
+                        .focused($focusedField, equals: .confirmPassword)
+                    
                     Button("Sign Up") {
                         signUpUser()
                     }

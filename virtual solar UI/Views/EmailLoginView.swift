@@ -11,6 +11,9 @@ struct EmailLoginView: View {
     @State private var showingLoginScreen = false
     @Environment(\.dismiss) var dismiss
 
+    @FocusState private var isEmailFocused: Bool
+    @FocusState private var isPasswordFocused: Bool
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -38,7 +41,12 @@ struct EmailLoginView: View {
                         .background(Color("AccentColor3"))
                         .cornerRadius(8)
                         .foregroundColor(.white)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color("AccentColor1"), lineWidth: 2))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(isEmailFocused ? Color("AccentColor1") : Color.clear, lineWidth: 2)
+                        )
+                        .focused($isEmailFocused)
+                    
 
                     Text("Password")
                         .foregroundColor(Color.gray)
@@ -52,15 +60,26 @@ struct EmailLoginView: View {
                         .background(Color("AccentColor3"))
                         .cornerRadius(8)
                         .foregroundColor(.white)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color("AccentColor1"), lineWidth: 2))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(isPasswordFocused ? Color("AccentColor1") : Color.clear, lineWidth: 2)
+                        )
+                        .focused($isPasswordFocused)
+                    
+                    Button(action: {
 
-                    Button("Login") {
                         authenticateUser()
+                    }) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white)
+                                .frame(width: 300, height: 50)
+
+                            Text("Login")
+                                .font(Font.custom("Poppins-Light", size: 18))
+                                .foregroundColor(Color("AccentColor3"))
+                        }
                     }
-                    .foregroundColor(Color("AccentColor3"))
-                    .frame(width: 300, height: 50)
-                    .background(Color.white)
-                    .cornerRadius(8)
                     .padding(.top, 30.0)
 
                     if wrongUsername > 0 || wrongPassword > 0 {
