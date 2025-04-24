@@ -8,6 +8,8 @@ struct EmailLoginView: View {
     @State private var wrongPassword = 0
     @State private var showingLoginScreen = false
     @Environment(\.dismiss) var dismiss
+    @FocusState private var isEmailFocused: Bool
+    @FocusState private var isPasswordFocused: Bool
     
     var body: some View {
         NavigationStack {
@@ -36,7 +38,11 @@ struct EmailLoginView: View {
                         .background(Color("AccentColor3"))
                         .cornerRadius(8)
                         .foregroundColor(.white)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color("AccentColor1"), lineWidth: 2))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(isEmailFocused ? Color("AccentColor1") : Color.clear, lineWidth: 2)
+                        )
+                        .focused($isEmailFocused)
                     
                     Text("Password")
                         .foregroundColor(Color.gray)
@@ -50,7 +56,11 @@ struct EmailLoginView: View {
                         .background(Color("AccentColor3"))
                         .cornerRadius(8)
                         .foregroundColor(.white)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color("AccentColor1"), lineWidth: 2))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(isPasswordFocused ? Color("AccentColor1") : Color.clear, lineWidth: 2)
+                        )
+                        .focused($isPasswordFocused)
                     
                     Button(action: {
                         authenticateUser()
