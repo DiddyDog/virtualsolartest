@@ -69,36 +69,6 @@ struct ProfileSetupView: View {
                     ) {
                         EmptyView()
                     }
-
-
-                    // Navigation to Dashboard
-                    NavigationLink(
-                        destination: NavigationBar(),
-                        isActive: $navigateToDashboard
-                    ) {
-                        EmptyView()
-                    }
-                }
-
-                // 2FA success popup
-                if showSuccessPopup {
-                    VStack {
-                        Spacer()
-                        Text("✅ 2FA Successful!")
-                            .foregroundColor(.green)
-                            .font(.headline)
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(10)
-                            .shadow(radius: 5)
-                        Spacer()
-                    }
-                    .transition(.scale)
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            showSuccessPopup = false
-                        }
-                    }
                 }
             }
         }

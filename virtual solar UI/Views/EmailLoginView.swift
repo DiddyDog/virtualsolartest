@@ -96,7 +96,7 @@ struct EmailLoginView: View {
             }
             .navigationDestination(isPresented: $showingLoginScreen) {
                 if is2FADone {
-                    DashIconView()
+                    NavigationBar()
                 } else {
                     ProfileSetupView()
                 }
