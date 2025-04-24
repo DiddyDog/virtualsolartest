@@ -52,13 +52,19 @@ struct EmailLoginView: View {
                         .foregroundColor(.white)
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color("AccentColor1"), lineWidth: 2))
                     
-                    Button("Login") {
+                    Button(action: {
                         authenticateUser()
+                    }) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white)
+                                .frame(width: 300, height: 50)
+
+                            Text("Login")
+                                .font(Font.custom("Poppins-Light", size: 18))
+                                .foregroundColor(Color("AccentColor3"))
+                        }
                     }
-                    .foregroundColor(Color("AccentColor3"))
-                    .frame(width: 300, height: 50)
-                    .background(Color.white)
-                    .cornerRadius(8)
                     .padding(.top, 30.0)
                     
                     if wrongUsername > 0 || wrongPassword > 0 {
