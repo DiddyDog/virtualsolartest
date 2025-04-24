@@ -13,10 +13,12 @@ struct EmailSignUpView: View {
 
     @FocusState private var focusedField: Field?
     
+    @FocusState private var focusedField: Field?
+    
     enum Field {
         case email, password, confirmPassword
     }
-
+    
     var body: some View {
         NavigationStack {
             ZStack {

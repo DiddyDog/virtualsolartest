@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DashIconView: View {
+struct NavigationBar: View {
     @State private var selectedTab = 0
     
     var body: some View {
@@ -27,7 +27,7 @@ struct DashIconView: View {
                 case 3:
                     MoreView()
                 default:
-                    DashboardView()
+                    NavigationBar()
                 }
                 
                 CustomTabBar(selectedTab: $selectedTab)
@@ -47,7 +47,7 @@ struct CustomTabBar: View {
     
     var body: some View {
         HStack {
-            TabBarButton(icon: "keyboard.fill", text: "Dashboard", isSelected: selectedTab == 0)
+            TabBarButton(icon: "SolarIcon", text: "Dashboard", isSelected: selectedTab == 0)
                 .onTapGesture {
                     selectedTab = 0
                 }
@@ -99,5 +99,5 @@ struct TabBarButton: View {
 }
 
 #Preview {
-    DashIconView()
+    NavigationBar()
 }
