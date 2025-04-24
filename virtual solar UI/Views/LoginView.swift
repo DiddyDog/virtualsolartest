@@ -3,8 +3,8 @@ import SwiftUI
 struct LoginView: View {
     let slides = [
         SlideData(image: "sun.max.fill", title: "Solar anywhere, anytime", description: "If you rent or own an apartment or house, or you own a business, SolarCloud works."),
-        SlideData(image: "house.fill", title: "Power your home with ease", description: "Enjoy seamless solar energy integration whether you own or rent."),
-        SlideData(image: "leaf.fill", title: "Sustainable and cost-effective", description: "Reduce your carbon footprint while saving on energy bills."),
+        SlideData(image: "house.fill", title: "Lower energy bills", description: "If you rent or own an apartment or house, or you own business, SolarCloud works"),
+        SlideData(image: "leaf.fill", title: "We make everything easier", description: "If you rent or own an apartment or house, or you own business, SolarCloud works"),
         SlideData(image: "globe", title: "Clean energy, anywhere", description: "Harness the power of the sun, wherever you are.")
     ]
     
@@ -13,7 +13,7 @@ struct LoginView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background gradient
+                //background
                 LinearGradient(
                     gradient: Gradient(stops: [
                         .init(color: Color("AccentColor4"), location: 0.0),  //top color
@@ -28,7 +28,7 @@ struct LoginView: View {
                 VStack {
                     Spacer()
                     
-                    // Marketing Slideshow
+                    //slides
                     TabView(selection: $selectedIndex) {
                         ForEach(0..<slides.count, id: \.self) { index in
                             SlideView(data: slides[index])
@@ -37,7 +37,7 @@ struct LoginView: View {
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // Hide default indicators
                     .frame(height: 250)
                     
-                    // Custom Page Indicators
+                    //slideshow indicator
                     HStack(spacing: 5) {
                         ForEach(0..<slides.count, id: \.self) { index in
                             Circle()
@@ -49,14 +49,14 @@ struct LoginView: View {
                     
                     Spacer()
                     
-                    // Social Media Login Buttons
+                    //social media login
                     VStack(spacing: 10) {
                         SocialLoginButton(title: "Continue with Google", icon: "globe")
                         SocialLoginButton(title: "Continue with Apple", icon: "applelogo")
                         SocialLoginButton(title: "Continue with Facebook", icon: "facebook")
                     }
                     
-                    // Email & Login Options
+                    //email login
                     HStack {
                         NavigationLink(destination: EmailSignUpView()) {
                             Text("Continue with email")
@@ -84,14 +84,14 @@ struct LoginView: View {
     }
 }
 
-// MARK: - Slide Data Model
+// MARK: slide data
 struct SlideData {
     let image: String
     let title: String
     let description: String
 }
 
-// MARK: - Slide View
+// MARK: slide view
 struct SlideView: View {
     let data: SlideData
     
@@ -118,14 +118,14 @@ struct SlideView: View {
     }
 }
 
-// MARK: - Custom Button for Social Login
+// MARK: custom button for social login
 struct SocialLoginButton: View {
     var title: String
     var icon: String
     
     var body: some View {
         Button(action: {
-            // Handle social login action
+            //handle social login action
         }) {
             HStack {
                 Image(systemName: icon)
