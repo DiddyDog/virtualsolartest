@@ -10,6 +10,8 @@ struct EmailSignUpView: View {
     @State private var passwordMismatch = false
     @State private var signupErrorMessage: String?
     @Environment(\.dismiss) var dismiss
+
+    @FocusState private var focusedField: Field?
     
     @FocusState private var focusedField: Field?
     
@@ -50,6 +52,7 @@ struct EmailSignUpView: View {
                         )
                         .focused($focusedField, equals: .email)
                     
+
                     Text("Password")
                         .foregroundColor(Color.gray)
                         .frame(maxWidth: .infinity, alignment: .leading)
