@@ -27,9 +27,10 @@ struct CalculatorView: View {
                             Image(systemName: "doc.text.magnifyingglass")
                                 .foregroundColor(.accentColor)
                             Text("Calculator")
-                                .font(.title3)
+                                .font(.title2)
                                 .bold()
                                 .foregroundColor(.white)
+                            Spacer()
                         }
                     }
                     VStack(spacing: 12) {
@@ -51,7 +52,7 @@ struct CalculatorView: View {
                         
                     }
                     .padding()
-                    .background(Color.white.opacity(0.05))
+                    .background(Color.black.opacity(0.3))
                     .cornerRadius(16)
                     
                     Text("Solar saving\n$250 monthly*")
@@ -59,6 +60,7 @@ struct CalculatorView: View {
                         .bold()
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
+                        
                     
                     LazyVGrid(columns: [GridItem(), GridItem()], spacing: 12) {
                         ForEach(0..<4) { _ in
