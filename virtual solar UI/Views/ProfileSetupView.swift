@@ -94,7 +94,7 @@ struct ProfileSetupView: View {
 
                     // Navigation to Dashboard
                     NavigationLink(
-                        destination: DashIconView(),
+                        destination: NavigationBar(),
                         isActive: $navigateToDashboard
                     ) {
                         EmptyView()

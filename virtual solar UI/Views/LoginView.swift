@@ -101,7 +101,7 @@ struct LoginView: View {
                 .padding()
 
                 // Navigate to dashboard after login
-                NavigationLink("", destination: DashIconView(), isActive: $isLoggedIn)
+                NavigationLink("", destination: NavigationBar(), isActive: $isLoggedIn)
             }
         }
     }
