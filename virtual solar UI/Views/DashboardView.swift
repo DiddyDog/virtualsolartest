@@ -10,7 +10,7 @@ struct DashboardView: View {
                 Color("BackgroundColor").ignoresSafeArea()
 
                 VStack {
-                    // 🔝 Header with logo and logout
+                    // Header with logo and logout
                     HStack {
                         Image("SolarCloudLogo")
                             .resizable()

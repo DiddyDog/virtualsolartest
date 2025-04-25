@@ -1,10 +1,3 @@
-//
-//  Untitled.swift
-//  virtual solar UI
-//
-//  Created by 陈祉卓 on 2025/3/13.
-//
-
 import SwiftUI
 
 struct NavigationBar: View {
@@ -35,7 +28,7 @@ struct NavigationBar: View {
                         Rectangle()
                             .fill(Color("BackgroundColor"))
                             .frame(height: 60)
-                            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: -5)
+                            .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: -5)
                     )
             }
         }
@@ -54,27 +47,27 @@ struct CustomTabBar: View {
             
             Spacer()
             
-            TabBarButton(icon: "list.bullet", text: "Tracker", isSelected: selectedTab == 1)
+            TabBarButton(icon: "ListIcon", text: "Tracker", isSelected: selectedTab == 1)
                 .onTapGesture {
                     selectedTab = 1
                 }
             
             Spacer()
             
-            TabBarButton(icon: "calculator", text: "Calculator", isSelected: selectedTab == 2)
+            TabBarButton(icon: "CalculatorIcon", text: "Calculator", isSelected: selectedTab == 2)
                 .onTapGesture {
                     selectedTab = 2
                 }
             
             Spacer()
             
-            TabBarButton(icon: "person.circle", text: "More", isSelected: selectedTab == 3)
+            TabBarButton(icon: "UserIcon", text: "More", isSelected: selectedTab == 3)
                 .onTapGesture {
                     selectedTab = 3
                 }
         }
         .padding(.horizontal)
-        .frame(height: 60)
+        .frame(height: 68)
         .background(Color("BackgroundColor"))
     }
 }
@@ -86,14 +79,18 @@ struct TabBarButton: View {
     
     var body: some View {
         VStack {
-            Image(systemName: icon)
-                .foregroundColor(isSelected ? Color("AccentColor1") : .white)
+            Image(icon) //nav bar image assests
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 24)
+                .foregroundColor(isSelected ? Color("AccentColor1") : .gray)
+                .padding(.top, 10.0)
                 
-            
             Text(text)
-                .foregroundColor(isSelected ? Color("AccentColor1") : .white)
+                .foregroundColor(isSelected ? Color("AccentColor1") : .gray)
                 .padding(.top, 3.0)
-            
+                .font(.custom("Poppins", size: 14))
         }
     }
 }
