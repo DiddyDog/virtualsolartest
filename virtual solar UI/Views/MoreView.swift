@@ -30,7 +30,7 @@ struct MoreView: View {
                 VStack(spacing: 24) {
                     Image("SolarCloudLogo")
                         .resizable()
-                        .frame(width: 40, height: 40)
+                        .frame(width: 28.86, height: 50.0)
                         .padding(.top)
                     
                     HStack {
