@@ -13,10 +13,17 @@ import FacebookCore
 struct virtual_solar_UIApp: App {
     // ✅ Connect AppDelegate
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject var appState = AppState() // ✅ shared app state
 
     var body: some Scene {
         WindowGroup {
-            ContentView() // 👈 Update to your actual entry view if different
+            if appState.isLoggedIn {
+                NavigationBar()
+                    .environmentObject(appState)
+            } else {
+                LoginView()
+                    .environmentObject(appState)
+            }
         }
     }
 }
