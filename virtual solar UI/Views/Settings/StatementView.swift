@@ -171,7 +171,7 @@ struct StatementView: View {
                 isExpanded[group.id] = false
             }
         }
-        .navigationBarBackButtonHidden(true) // ✅ Hide top system back button
+        .navigationBarBackButtonHidden(true) 
     }
 
     // MARK: - Entry UI
