@@ -6,6 +6,9 @@ import FacebookLogin
 import FirebaseCore
 
 struct LoginView: View {
+    
+    @EnvironmentObject var appState: AppState
+    
     let slides = [
         SlideData(image: "Slide1", title: "Solar anywhere, anytime", description: "If you rent or own an apartment or house, or you own a business, SolarCloud works."),
         SlideData(image: "Slide2", title: "Lower energy bills", description: "If you rent or own an apartment or house, or you own business, SolarCloud works."),
@@ -13,7 +16,6 @@ struct LoginView: View {
     ]
     
     @State private var selectedIndex = 0
-    @State private var isLoggedIn = false
     @State private var loginError: String?
 
     var body: some View {
@@ -101,8 +103,6 @@ struct LoginView: View {
                 }
                 .padding()
                 
-                // Navigate to dashboard after login
-                NavigationLink("", destination: NavigationBar(), isActive: $isLoggedIn)
             }
         }
     }
@@ -136,7 +136,7 @@ struct LoginView: View {
                     if let error = error {
                         loginError = "Firebase error: \(error.localizedDescription)"
                     } else {
-                        isLoggedIn = true
+                        appState.isLoggedIn = true
                     }
                 }
             }
@@ -163,7 +163,7 @@ struct LoginView: View {
                 if let error = error {
                     loginError = "Firebase error: \(error.localizedDescription)"
                 } else {
-                    isLoggedIn = true
+                    appState.isLoggedIn = true
                 }
             }
         }
