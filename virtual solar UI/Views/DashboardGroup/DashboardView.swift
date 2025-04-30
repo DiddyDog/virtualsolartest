@@ -3,9 +3,9 @@ import SwiftUI
 struct DashboardView: View {
     @State private var selectedTab: DashboardTab = .active
 
-    enum DashboardTab {
-        case active
-        case pending
+    enum DashboardTab: String, CaseIterable, Hashable {
+        case active = "Active"
+        case pending = "Pending"
     }
 
     var body: some View {
@@ -19,11 +19,14 @@ struct DashboardView: View {
                             .padding(.top, 64)
 
                         HStack(spacing: 8) {
-                            Image(systemName: "calendar.badge.clock")
+                            Image("SolarIcon")
                                 .foregroundColor(Color("AccentColor1"))
+                                .fixedSize()
+                                .frame(width: 8, height: 8)
+                                .padding()
                             Text("Dashboard")
                                 .foregroundColor(.white)
-                                .font(.title3)
+                                .font(.custom("Poppins", size: 20))
                                 .fontWeight(.semibold)
                             Spacer()
                         }
@@ -31,29 +34,22 @@ struct DashboardView: View {
                     }
 
                     // Tab Switch
-                    HStack(spacing: 0) {
-                        Button(action: {
-                            selectedTab = .active
-                        }) {
-                            Text("Active")
-                                .font(.subheadline)
-                                .foregroundColor(selectedTab == .active ? .white : .gray)
-                                .padding(.vertical, 8)
-                                .frame(maxWidth: .infinity)
-                                .background(selectedTab == .active ? Color("AccentColor1") : Color.clear)
-                                .cornerRadius(8)
-                        }
-
-                        Button(action: {
-                            selectedTab = .pending
-                        }) {
-                            Text("Pending")
-                                .font(.subheadline)
-                                .foregroundColor(selectedTab == .pending ? .white : .gray)
-                                .padding(.vertical, 8)
-                                .frame(maxWidth: .infinity)
-                                .background(selectedTab == .pending ? Color("AccentColor1") : Color.clear)
-                                .cornerRadius(8)
+                    HStack(spacing: 12) {
+                        ForEach(DashboardTab.allCases, id: \.self) { tab in
+                            Button(action: {
+                                selectedTab = tab
+                            }) {
+                                Text(tab.rawValue)
+                                    .font(.custom("PoppinsSemiBold", size: 16))
+                                    .foregroundColor(selectedTab == tab ? Color("AccentColor1") : .gray)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 10)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(selectedTab == tab ? Color("AccentColor1") : Color.gray, lineWidth: 4)
+                                    )
+                                    .cornerRadius(8)
+                            }
                         }
                     }
                     .padding(.horizontal)
