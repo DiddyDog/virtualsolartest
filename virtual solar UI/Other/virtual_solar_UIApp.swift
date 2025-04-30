@@ -11,17 +11,12 @@ import FacebookCore
 
 @main
 struct virtual_solar_UIApp: App {
-    // ✅ Connect to the AppDelegate
+    // ✅ Connect AppDelegate
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
-    init() {
-        // ✅ Initialize Firebase
-        FirebaseApp.configure()
-    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView() // 👈 Update to your actual entry view if different
         }
     }
 }

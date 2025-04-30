@@ -21,7 +21,8 @@ struct CalculatorView: View {
                     VStack(spacing: 8) {
                         Image("SolarCloudLogo")
                             .resizable()
-                            .frame(width: 40, height: 40)
+                            .frame(width: 28.86, height: 50.0)
+                            .padding(.top)
                         
                         HStack {
                             Image(systemName: "doc.text.magnifyingglass")

@@ -45,10 +45,10 @@ struct OnBoardView: View {
                             
                             //app name
                             Text("SOLAR")
-                                .font(.system(size: 28, weight: .bold))
+                                .font(.custom("Poppins", size: 28).weight(.bold)) // Poppins font for "SOLAR"
                                 .foregroundColor(.yellow)
                             + Text("CLOUD")
-                                .font(.system(size: 28, weight: .bold))
+                                .font(.custom("Poppins", size: 28).weight(.bold)) // Poppins font for "CLOUD"
                                 .foregroundColor(.gray)
                         }
                     }
@@ -69,4 +69,8 @@ struct OnBoardView: View {
             OnBoardView()
         }
     }
+}
+
+#Preview {
+    OnBoardView()
 }
