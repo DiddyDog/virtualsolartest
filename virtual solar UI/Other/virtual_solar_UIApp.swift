@@ -26,8 +26,6 @@ struct virtual_solar_UIApp: App {
                     print("❌ Sign-out failed: \(error.localizedDescription)")
                 }
 
-                // Set default state
-                appState.isLoggedIn = false
         }
     
     var body: some Scene {
