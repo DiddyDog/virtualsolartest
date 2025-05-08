@@ -66,8 +66,8 @@ struct CustomTabBar: View {
                     selectedTab = 3
                 }
         }
-        .padding(.horizontal)
-        .frame(height: 68)
+        .padding(.horizontal, 30) // icon spacing between each other
+        .frame(height: 12) //bar height
         .background(Color("BackgroundColor"))
     }
 }
@@ -83,14 +83,13 @@ struct TabBarButton: View {
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .frame(height: 24)
+                .frame(height: 20) //icon size
                 .foregroundColor(isSelected ? Color("AccentColor1") : .gray)
-                .padding(.top, 10.0)
+                
                 
             Text(text)
                 .foregroundColor(isSelected ? Color("AccentColor1") : .gray)
-                .padding(.top, 3.0)
-                .font(.custom("Poppins", size: 14))
+                .font(.custom("Poppins", size: 12))
         }
     }
 }
