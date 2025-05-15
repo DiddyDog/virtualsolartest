@@ -5,19 +5,31 @@ struct DateBoxView: View {
     
     var body: some View {
         VStack(spacing: 2) {
-            Text(monthString)
-                .font(.custom("Poppins-SemiBold", size: 12))
-                .foregroundColor(.white)
+            // Month and year
+            HStack {
+                Text(monthString)
+                    .font(.custom("Poppins-SemiBold", size: 12))
+                    .foregroundColor(.white)
+                Text(yearString)
+                    .font(.custom("Poppins-SemiBold", size: 12))
+                    .foregroundColor(.white)
+            }
+            // Day
             Text(dayString)
-                .font(.custom("Poppins-SemiBold", size: 18))
+                .font(.custom("Poppins-SemiBold", size: 20))
                 .foregroundColor(.white)
-            Text(yearString)
-                .font(.custom("Poppins", size: 10))
-                .foregroundColor(.gray)
+                .fontWeight(.semibold)
         }
-        .frame(width: 60, height: 60)
-        .background(Color("AccentColor1").opacity(0.8))
-        .cornerRadius(8)
+        .frame(width: 75, height: 60) // Fixed size
+        .padding(8) // Consistent padding
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color("BackgroundColor"))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color("AccentColor1"), lineWidth: 2)
+        )
     }
     
     private var monthString: String {
@@ -37,4 +49,9 @@ struct DateBoxView: View {
         formatter.dateFormat = "yyyy"
         return formatter.string(from: date)
     }
+}
+
+#Preview {
+    DateBoxView(date: Date())
+        .background(Color("BackgroundColor")) // For preview purposes
 }
