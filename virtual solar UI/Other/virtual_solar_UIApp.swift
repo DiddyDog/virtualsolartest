@@ -8,6 +8,7 @@
 import SwiftUI
 import Firebase
 import FacebookCore
+import FirebaseAuth
 
 @main
 struct virtual_solar_UIApp: App {
@@ -15,13 +16,25 @@ struct virtual_solar_UIApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var appState = AppState() // ✅ shared app state
 
+    init() {
+            FirebaseApp.configure()
+            // Check if user is already signed in
+        do {
+                    try Auth.auth().signOut()
+                    print("🔒 User forcibly signed out on launch.")
+                } catch {
+                    print("❌ Sign-out failed: \(error.localizedDescription)")
+                }
+
+        }
+    
     var body: some Scene {
         WindowGroup {
             if appState.isLoggedIn {
                 NavigationBar()
                     .environmentObject(appState)
             } else {
-                LoginView()
+                ContentView()
                     .environmentObject(appState)
             }
         }
