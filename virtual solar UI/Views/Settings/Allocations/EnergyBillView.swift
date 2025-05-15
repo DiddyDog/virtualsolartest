@@ -18,6 +18,12 @@ struct EnergyBillView: View {
     @State private var showReferenceError = false
     @State private var showNicknameError = false
 
+    @State private var allocatedPanels = 0
+    @State private var leftPanels = 6
+    @State private var totalPanels = 6
+
+    @State private var selectedPanels = 1
+
     let energyCompanies = [
         "Choose", "AGL", "Origin Energy", "EnergyAustralia", "Red Energy",
         "Powershop", "Simply Energy", "Lumo Energy", "Alinta Energy",
@@ -29,253 +35,342 @@ struct EnergyBillView: View {
         ZStack {
             Color("BackgroundColor").ignoresSafeArea()
 
-            VStack(spacing: 20) {
-                // Logo centered
-                HStack {
-                    Spacer()
-                    Image("SolarCloudLogo")
-                        .resizable()
-                        .frame(width: 28.86, height: 50)
-                    Spacer()
-                }
-
-                // Title and Back
-                HStack(spacing: 10) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(Color("AccentColor2"))
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Logo
+                    HStack {
+                        Spacer()
+                        Image("SolarCloudLogo")
+                            .resizable()
+                            .frame(width: 28.86, height: 50)
+                        Spacer()
                     }
 
-                    Text("Energy company")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+                    // Title + Back
+                    HStack(spacing: 10) {
+                        Button { dismiss() } label: {
+                            Image(systemName: "chevron.left")
+                                .foregroundColor(Color("AccentColor2"))
+                        }
 
-                    Spacer()
-                }
-                .padding(.horizontal)
+                        Text("Energy company")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
 
-                Text("Enter the Bpay details from your Energy companies bill.")
-                    .foregroundColor(.gray)
-                    .font(.subheadline)
+                        Spacer()
+                    }
                     .padding(.horizontal)
-                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                Group {
-                    // Company Dropdown
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Select an Energy Company")
-                            .foregroundColor(.gray)
+                    // Description
+                    Text("Enter the BPAY details from your Energy company's bill.")
+                        .foregroundColor(.gray)
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
 
-                        Button {
-                            showCompanyPicker.toggle()
-                        } label: {
-                            HStack {
-                                Text(selectedCompany)
-                                    .foregroundColor(.white)
-                                Spacer()
-                                Image(systemName: "chevron.down")
+                    // Allocated Panels
+                    HStack {
+                        Spacer()
+                        VStack {
+                            Text("allocated")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            VStack {
+                                Text("\(allocatedPanels) panels")
+                                    .foregroundColor(Color("AccentColor2"))
+                                Text("\(String(format: "%.1f", Double(allocatedPanels) * 0.85))kW")
+                                    .font(.caption2)
                                     .foregroundColor(.white)
                             }
                             .padding()
                             .background(Color("AccentColor3"))
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(showCompanyError ? Color.red : Color.clear, lineWidth: 2)
-                            )
+                            .cornerRadius(16)
                         }
-
-                        if showCompanyError {
-                            Text("Please select a valid energy company.")
-                                .foregroundColor(.red)
+                        Spacer()
+                        VStack {
+                            Text("left")
                                 .font(.caption)
-                        }
-                    }
-
-                    // Biller Code
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Biller Code:")
-                            .foregroundColor(.gray)
-
-                        TextField("Enter biller code", text: $billerCode)
+                                .foregroundColor(.gray)
+                            VStack {
+                                Text("\(leftPanels) panels")
+                                    .foregroundColor(Color("AccentColor2"))
+                                Text("\(String(format: "%.1f", Double(leftPanels) * 0.85))kW")
+                                    .font(.caption2)
+                                    .foregroundColor(.white)
+                            }
                             .padding()
                             .background(Color("AccentColor3"))
-                            .cornerRadius(10)
-                            .foregroundColor(.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(showBillerCodeError ? Color.red : Color.clear, lineWidth: 2)
-                            )
-
-                        if showBillerCodeError {
-                            Text("Biller code is required.")
-                                .foregroundColor(.red)
-                                .font(.caption)
+                            .cornerRadius(16)
                         }
+                        Spacer()
                     }
 
-                    // Reference
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Ref:")
-                            .foregroundColor(.gray)
-
-                        TextField("Enter reference", text: $reference)
-                            .padding()
-                            .background(Color("AccentColor3"))
-                            .cornerRadius(10)
+                    // Panel Selector
+                    VStack(spacing: 4) {
+                        Text("Panels")
                             .foregroundColor(.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(showReferenceError ? Color.red : Color.clear, lineWidth: 2)
-                            )
 
-                        if showReferenceError {
-                            Text("Reference is required.")
-                                .foregroundColor(.red)
-                                .font(.caption)
+                        HStack(spacing: 0) {
+                            Button {
+                                if selectedPanels > 1 { selectedPanels -= 1 }
+                            } label: {
+                                Text("–")
+                                    .font(.title2)
+                                    .frame(width: 40, height: 40)
+                                    .foregroundColor(.white)
+                                    .background(Color("AccentColor3"))
+                            }
+
+                            Text("\(selectedPanels)")
+                                .frame(width: 60, height: 40)
+                                .background(Color("AccentColor3"))
+                                .foregroundColor(.white)
+
+                            Button {
+                                if selectedPanels < leftPanels { selectedPanels += 1 }
+                            } label: {
+                                Text("+")
+                                    .font(.title2)
+                                    .frame(width: 40, height: 40)
+                                    .foregroundColor(.white)
+                                    .background(Color("AccentColor3"))
+                            }
                         }
-                    }
-
-                    // Nickname
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Nickname:")
-                            .foregroundColor(.gray)
-
-                        TextField("Enter nickname", text: $nickname)
-                            .padding()
-                            .background(Color("AccentColor3"))
-                            .cornerRadius(10)
-                            .foregroundColor(.white)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(showNicknameError ? Color.red : Color.clear, lineWidth: 2)
-                            )
-
-                        if showNicknameError {
-                            Text("Nickname is required.")
-                                .foregroundColor(.red)
-                                .font(.caption)
-                        }
-                    }
-                }
-                .padding(.horizontal)
-
-                // Add Button
-                Button(action: validateAndSave) {
-                    Text("Add")
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color("AccentColor2"))
-                        .foregroundColor(.black)
                         .cornerRadius(12)
-                }
-                .padding(.horizontal)
+                    }
 
-                // Logo
-                Image("bpay_logo")
-                    .resizable()
-                    .frame(width: 100, height: 40)
-                    .padding(.top, 10)
+                    // Fields
+                    VStack(alignment: .leading, spacing: 10) {
+                        // Energy Company Picker
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Select Energy Company")
+                                .foregroundColor(.gray)
 
-                Spacer()
-            }
-            .padding(.top)
-        }
-        .sheet(isPresented: $showCompanyPicker) {
-            ZStack {
-                Color("AccentColor3").ignoresSafeArea()
-
-                VStack(spacing: 0) {
-                    Text("Select Energy Company")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-
-                    ScrollView {
-                        VStack(spacing: 8) {
-                            ForEach(energyCompanies, id: \.self) { company in
-                                Button(action: {
-                                    selectedCompany = company
-                                    showCompanyPicker = false
-                                }) {
-                                    HStack {
-                                        Text(company)
-                                            .foregroundColor(.white)
-                                        Spacer()
-                                    }
-                                    .padding()
-                                    .background(Color("AccentColor3").opacity(0.8))
-                                    .cornerRadius(10)
+                            Button {
+                                showCompanyPicker.toggle()
+                            } label: {
+                                HStack {
+                                    Text(selectedCompany)
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .foregroundColor(.white)
                                 }
-                                .padding(.horizontal)
+                                .padding()
+                                .background(Color("AccentColor3"))
+                                .cornerRadius(10)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(showCompanyError ? Color.red : Color.clear, lineWidth: 2)
+                                )
+                            }
+
+                            if showCompanyError {
+                                Text("Please select a valid company.")
+                                    .foregroundColor(.red)
+                                    .font(.caption)
                             }
                         }
-                        .padding(.bottom)
+
+                        // Biller Code
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Biller Code:")
+                                .foregroundColor(.gray)
+                            TextField("Enter Biller Code", text: $billerCode)
+                                .padding()
+                                .background(Color("AccentColor3"))
+                                .cornerRadius(10)
+                                .foregroundColor(.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(showBillerCodeError ? Color.red : Color.clear, lineWidth: 2)
+                                )
+
+                            if showBillerCodeError {
+                                Text("Biller code is required.")
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                            }
+                        }
+
+                        // Reference
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Reference:")
+                                .foregroundColor(.gray)
+                            TextField("Enter Reference", text: $reference)
+                                .padding()
+                                .background(Color("AccentColor3"))
+                                .cornerRadius(10)
+                                .foregroundColor(.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(showReferenceError ? Color.red : Color.clear, lineWidth: 2)
+                                )
+
+                            if showReferenceError {
+                                Text("Reference is required.")
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                            }
+                        }
+
+                        // Nickname
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Nickname:")
+                                .foregroundColor(.gray)
+                            TextField("Enter nickname", text: $nickname)
+                                .padding()
+                                .background(Color("AccentColor3"))
+                                .cornerRadius(10)
+                                .foregroundColor(.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(showNicknameError ? Color.red : Color.clear, lineWidth: 2)
+                                )
+
+                            if showNicknameError {
+                                Text("Nickname is required.")
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                            }
+                        }
                     }
+                    .padding(.horizontal)
+
+                    // Add Button
+                    Button(action: handleAdd) {
+                        Text("Add")
+                            .fontWeight(.bold)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color("AccentColor2"))
+                            .foregroundColor(.black)
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+
+                    Spacer(minLength: 40)
                 }
+                .padding(.top)
             }
-            .presentationDetents([.medium])
+        }
+        .onAppear(perform: fetchAllocations)
+        .sheet(isPresented: $showCompanyPicker) {
+            CompanyPickerSheet
         }
         .navigationBarBackButtonHidden(true)
     }
 
-    // MARK: - Validation and Firestore
-    func validateAndSave() {
-        // Reset
-        showCompanyError = false
-        showBillerCodeError = false
-        showReferenceError = false
-        showNicknameError = false
+    // MARK: - Functions
+    func handleAdd() {
+        showCompanyError = selectedCompany == "Choose"
+        showBillerCodeError = billerCode.trimmingCharacters(in: .whitespaces).isEmpty
+        showReferenceError = reference.trimmingCharacters(in: .whitespaces).isEmpty
+        showNicknameError = nickname.trimmingCharacters(in: .whitespaces).isEmpty
 
-        var hasError = false
-
-        if selectedCompany == "Choose" {
-            showCompanyError = true
-            hasError = true
-        }
-        if billerCode.trimmingCharacters(in: .whitespaces).isEmpty {
-            showBillerCodeError = true
-            hasError = true
-        }
-        if reference.trimmingCharacters(in: .whitespaces).isEmpty {
-            showReferenceError = true
-            hasError = true
-        }
-        if nickname.trimmingCharacters(in: .whitespaces).isEmpty {
-            showNicknameError = true
-            hasError = true
-        }
-
-        if hasError { return }
-
-        saveToFirestore()
-    }
-
-    func saveToFirestore() {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard !showCompanyError && !showBillerCodeError && !showReferenceError && !showNicknameError else { return }
 
         let data: [String: Any] = [
             "company": selectedCompany,
             "billerCode": billerCode,
             "reference": reference,
-            "nickname": nickname
+            "nickname": nickname,
+            "allocatedPanels": selectedPanels,
+            "kilowatt": Double(selectedPanels) * 0.85
         ]
 
-        Firestore.firestore().collection("users").document(uid).collection("energyBills").addDocument(data: data) { error in
-            if let error = error {
-                print("❌ Firestore save failed: \(error.localizedDescription)")
-            } else {
-                print("✅ Energy bill info saved")
-                dismiss()
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        Firestore.firestore()
+            .collection("users")
+            .document(uid)
+            .collection("energyBills")
+            .addDocument(data: data) { error in
+                if error == nil {
+                    print("✅ Energy bill info saved successfully")
+                    dismiss()
+                }
             }
+    }
+
+    func fetchAllocations() {
+        allocatedPanels = 0
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        let group = DispatchGroup()
+
+        group.enter()
+        db.collection("users").document(uid).collection("energyBills").getDocuments { snapshot, error in
+            if let docs = snapshot?.documents {
+                for doc in docs {
+                    allocatedPanels += doc.data()["allocatedPanels"] as? Int ?? 0
+                }
+            }
+            group.leave()
+        }
+
+        group.enter()
+        db.collection("users").document(uid).collection("paypalAllocations").getDocuments { snapshot, error in
+            if let docs = snapshot?.documents {
+                for doc in docs {
+                    allocatedPanels += doc.data()["allocatedPanels"] as? Int ?? 0
+                }
+            }
+            group.leave()
+        }
+
+        group.enter()
+        db.collection("users").document(uid).collection("bankAccounts").getDocuments { snapshot, error in
+            if let docs = snapshot?.documents {
+                for doc in docs {
+                    allocatedPanels += doc.data()["allocatedPanels"] as? Int ?? 0
+                }
+            }
+            group.leave()
+        }
+
+        group.notify(queue: .main) {
+            leftPanels = max(0, totalPanels - allocatedPanels)
         }
     }
-}
 
+    var CompanyPickerSheet: some View {
+        ZStack {
+            Color("AccentColor3").ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                Text("Select Energy Company")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+
+                ScrollView {
+                    VStack(spacing: 8) {
+                        ForEach(energyCompanies, id: \.self) { company in
+                            Button(action: {
+                                selectedCompany = company
+                                showCompanyPicker = false
+                            }) {
+                                HStack {
+                                    Text(company)
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                }
+                                .padding()
+                                .background(Color("AccentColor3").opacity(0.8))
+                                .cornerRadius(10)
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                    .padding(.bottom)
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
+}
 #Preview {
     EnergyBillView()
 }

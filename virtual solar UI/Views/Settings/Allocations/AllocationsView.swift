@@ -2,6 +2,12 @@ import SwiftUI
 
 struct AllocationsView: View {
     @Environment(\.dismiss) var dismiss
+    @State private var showOptions = false
+
+    // Navigation states
+    @State private var goToBank = false
+    @State private var goToEnergy = false
+    @State private var goToPaypal = false
 
     var body: some View {
         NavigationStack {
@@ -9,11 +15,16 @@ struct AllocationsView: View {
                 Color("BackgroundColor").ignoresSafeArea()
 
                 VStack(spacing: 20) {
-                    Image("SolarCloudLogo")
-                        .resizable()
-                        .frame(width: 28.86, height: 50)
+                    // Centered Logo
+                    HStack {
+                        Spacer()
+                        Image("SolarCloudLogo")
+                            .resizable()
+                            .frame(width: 28.86, height: 50)
+                        Spacer()
+                    }
 
-                    // Custom Back Button and Title
+                    // Title + Back Button
                     HStack(spacing: 10) {
                         Button(action: {
                             dismiss()
@@ -23,7 +34,7 @@ struct AllocationsView: View {
                         }
 
                         Text("Payouts / Allocations")
-                            .font(.title2)
+                            .font(.title)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
 
@@ -31,66 +42,150 @@ struct AllocationsView: View {
                     }
                     .padding(.horizontal)
 
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Step 1.")
-                            .font(.subheadline)
-                            .bold()
-                            .foregroundColor(.white)
+                    // Subheading
+                    Text("Select an account where you wish the money from your virtual solar to magically appear")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
 
-                        Text("Select an account where you wish the money from your virtual solar to magically appear")
-                            .font(.subheadline)
+                    // YOU HAVE
+                    Text("You have")
+                        .foregroundColor(.white)
+                        .font(.title3)
+                        .bold()
+
+                    // Pending
+                    VStack(spacing: 4) {
+                        Text("almost there")
                             .foregroundColor(.gray)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
+                            .font(.caption)
 
-                    VStack(spacing: 16) {
-                        NavigationLink(destination: EnergyBillView()) {
-                            AllocationButton(title: "Energy bill", colorName: "AccentColor2")
+                        HStack {
+                            Text("Pending")
+                                .bold()
+                                .foregroundColor(.white)
+                            Spacer()
+                            Text("5.1kW/6 panels")
+                                .foregroundColor(.white)
                         }
-
-                        NavigationLink(destination: PaypalView()) {
-                            AllocationButton(title: "Paypal / Mint", colorName: "AccentColor2")
-                        }
-
-                        NavigationLink(destination: EFTView()) {
-                            AllocationButton(title: "EFT", colorName: "AccentColor2")
-                        }
+                        .padding()
+                        .background(Color("AccentColor3"))
+                        .cornerRadius(20)
+                        .frame(width: 245, height: 55.48)
                     }
                     .padding(.horizontal)
+
+                    Divider()
+                        .overlay(Color("AccentColor2"))
+                        .frame(width: 230)
+
+                    // Active
+                    VStack(spacing: 4) {
+                        Text("to allocate")
+                            .foregroundColor(.white)
+                            .font(.caption)
+
+                        HStack {
+                            Text("Active")
+                                .bold()
+                                .foregroundColor(.black)
+                            Spacer()
+                            Text("5.1kW/6 panels")
+                                .foregroundColor(.black)
+                        }
+                        .padding()
+                        .background(Color("AccentColor2"))
+                        .cornerRadius(20)
+                        .frame(width: 245, height: 55.48)
+                    }
+                    .padding(.horizontal)
+
+                    // Dropdown button
+                    Button {
+                        withAnimation {
+                            showOptions.toggle()
+                        }
+                    } label: {
+                        HStack {
+                            Text("payee allocation")
+                                .foregroundColor(Color("AccentColor2"))
+                            Spacer()
+                            Image(systemName: showOptions ? "chevron.up" : "chevron.down")
+                                .foregroundColor(Color("AccentColor2"))
+                        }
+                        .padding()
+                        .background(Color("AccentColor3"))
+                        .cornerRadius(20)
+                        .shadow(radius: 6)
+                        .frame(width: 250)
+                    }
                     .padding(.top, 10)
+                    .padding(.horizontal)
+
+                    // Dropdown Options
+                    if showOptions {
+                        VStack(spacing: 0) {
+                            Button(action: {
+                                goToBank = true
+                                showOptions = false
+                            }) {
+                                Text("Bank")
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                                    .foregroundColor(.white)
+                            }
+                            Divider().background(Color("AccentColor2"))
+
+                            Button(action: {
+                                goToEnergy = true
+                                showOptions = false
+                            }) {
+                                Text("Energy Company")
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                                    .foregroundColor(Color("AccentColor2"))
+                            }
+                            Divider().background(Color("AccentColor2"))
+
+                            Button(action: {
+                                goToPaypal = true
+                                showOptions = false
+                            }) {
+                                Text("PayPal")
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .background(Color("AccentColor5"))
+                        .cornerRadius(30)
+                        .padding(.horizontal, 0)
+                        .padding(.top, 10)
+                        .transition(.move(edge: .bottom))
+                    }
 
                     Spacer()
                 }
                 .padding(.top)
             }
+
+            // ✅ Navigation destinations
+            .navigationDestination(isPresented: $goToBank) {
+                EFTView()
+            }
+            .navigationDestination(isPresented: $goToEnergy) {
+                EnergyBillView()
+            }
+            .navigationDestination(isPresented: $goToPaypal) {
+                PaypalView()
+            }
+
             .navigationBarBackButtonHidden(true)
         }
     }
 }
 
-struct AllocationButton: View {
-    var title: String
-    var colorName: String = "AccentColor2"
-
-    var body: some View {
-        HStack(spacing: 14) {
-            Text(title)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.white)
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .foregroundColor(.white.opacity(0.7))
-        }
-        .padding()
-        .background(Color(colorName))
-        .cornerRadius(16)
-        .shadow(color: Color(colorName).opacity(0.3), radius: 6, x: 0, y: 4)
-    }
-}
 #Preview {
     AllocationsView()
 }

@@ -34,7 +34,7 @@ struct virtual_solar_UIApp: App {
                 NavigationBar()
                     .environmentObject(appState)
             } else {
-                LoginView()
+                ContentView()
                     .environmentObject(appState)
             }
         }

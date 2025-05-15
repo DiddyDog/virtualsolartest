@@ -6,11 +6,11 @@ struct MoreView: View {
         case myDetails = "My Details"
         case statement = "Statement"
         case progressTracker = "Progress Tracker"
-        case energyCompany = "Energy Company"
         case allocations = "Allocations"
         case videoExplainer = "Video Explainer"
         case legalDocument = "Legal Document"
         case faq = "FAQ"
+        case contactUs = "Contact Us"
         case logout = "Logout"
 
         var id: String { self.rawValue }
@@ -131,16 +131,16 @@ struct MoreView: View {
             StatementView()
         case .progressTracker:
             ProgressTrackerView()
-        case .energyCompany:
-            EnergyCompanyView()
         case .allocations:
-            AllocationsView()
+            AllocationsHomeView()
         case .videoExplainer:
             VideoExplainerView()
         case .legalDocument:
             LegalDocumentView()
         case .faq:
             FAQView()
+        case .contactUs:
+            ContactUsView()
         case .logout:
             EmptyView()
         }
