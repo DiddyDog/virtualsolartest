@@ -103,6 +103,7 @@ struct TimelineEventView: View {
             )
             
             NotificationContentView(event: event)
+                .offset(y: -10) // Adjust to align with the date box
                 .background(
                     GeometryReader { geo in
                         Color.clear
