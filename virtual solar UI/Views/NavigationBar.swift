@@ -79,7 +79,7 @@ struct TabBarButton: View {
     
     var body: some View {
         VStack {
-            Image(icon) //nav bar image assests
+            Image(icon) //nav bar images
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()

@@ -71,12 +71,27 @@ struct TrackerView: View {
                             .frame(width: 28.86, height: 50)
                         Spacer()
                     }
-                    .padding(.top, 20)
+                    .padding(.top, 1)
 
                     ScrollView {
                         VStack(spacing: 16) {
-                            // Active/Pending kW section
+                            
                             VStack(spacing: 4) {
+                                HStack(spacing: 8) {
+                                    Image("ListIcon")
+                                        .foregroundColor(Color("AccentColor1"))
+                                        .fixedSize()
+                                        .frame(width: 8, height: 8)
+                                        .padding()
+                                    Text("Tracker")
+                                        .foregroundColor(.white)
+                                        .font(.custom("Poppins", size: 20))
+                                        .fontWeight(.semibold)
+                                    Spacer()
+                                }
+                                .padding(.bottom, 20)
+                                
+                                // Active/Pending kW section
                                 HStack {
                                     Spacer()
                                     VStack(spacing: 2) {
