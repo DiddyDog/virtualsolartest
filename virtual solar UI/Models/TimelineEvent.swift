@@ -1,23 +1,15 @@
 import Foundation
 
-/*struct TimelineEvent: Identifiable {
-    let id = UUID()
-    let date: Date
-    let title: String
-    let description: String
-    let type: NotificationType
-    let amount: Double?
-    
-}*/
-
+// Model representing a timeline event with unique ID, date, title, description, type, and optional amount.
 struct TimelineEvent: Identifiable, Equatable {
-    let id = UUID()
-    let date: Date
-    let title: String
-    let description: String
-    let type: NotificationType
-    let amount: Double?
-    
+    let id = UUID() // Unique identifier for each event
+    let date: Date // Event date
+    let title: String // Event title
+    let description: String // Event description
+    let type: NotificationType // Event type (enum)
+    let amount: Double? // Optional amount (e.g., payment)
+
+    // Equatable conformance based on unique ID
     static func == (lhs: TimelineEvent, rhs: TimelineEvent) -> Bool {
         lhs.id == rhs.id
     }
@@ -64,59 +56,4 @@ extension TimelineEvent {
     ]
 }
 
-/*
- import SwiftUI
 
- struct TimelineEventView: View {
-     let event: TimelineEvent
-     let nextEventDate: Date?
-     
-     @State private var dateBoxHeight: CGFloat = 70
-     @State private var contentHeight: CGFloat = 60 // Default initial height
-     
-     var body: some View {
-         HStack(alignment: .top, spacing: 8) {
-             // Date box with connecting line
-             VStack(spacing: 0) {
-                 DateBoxView(date: event.date)
-                     .background(
-                         GeometryReader { geo in
-                             Color.clear
-                                 .onAppear { dateBoxHeight = geo.size.height }
-                                 .onChange(of: geo.size.height) { _ in
-                                     dateBoxHeight = geo.size.height
-                                 }
-                         }
-                     )
-                 
-                 if nextEventDate != nil {
-                     Rectangle()
-                         .frame(width: 2, height: lineHeight)
-                         .foregroundColor(Color("AccentColor1"))
-                         .animation(.default, value: lineHeight) // Smooth height changes
-                 }
-             }
-             
-             NotificationContentView(event: event)
-                 .background(
-                     GeometryReader { geo in
-                         Color.clear
-                             .onAppear {
-                                 contentHeight = geo.size.height
-                             }
-                             .onChange(of: geo.size.height) { _ in
-                                 contentHeight = geo.size.height
-                             }
-                     }
-                 )
-         }
-     }
-     
-     private var lineHeight: CGFloat {
-         let fixedHeight: CGFloat = 80 // Fixed height for the line
-         let calculatedHeight = contentHeight - dateBoxHeight + 8 // Adjust based on content
-         return max(fixedHeight, calculatedHeight) // Use the larger of the two
-     }
- }
-
- */

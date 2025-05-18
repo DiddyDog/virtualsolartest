@@ -1,6 +1,6 @@
-// File: virtual solar UI/virtual solar UI/Views/TrackerGroup/DropdownMenu.swift
 import SwiftUI
 
+// DropdownMenu: Combines a button and a dropdown list for selection
 struct DropdownMenu: View {
     let options: [String]
     @Binding var selectedOption: String?
@@ -9,11 +9,11 @@ struct DropdownMenu: View {
     let id: String
     let xOffset: CGFloat
     let yOffset: CGFloat
-    
+    // Determines if this dropdown is expanded
     var isExpanded: Bool { expandedID == id }
     
     var body: some View {
-        ZStack {
+        ZStack { // Dropdown button always visible
             DropdownButton(
                 selectedOption: selectedOption,
                 isExpanded: isExpanded,
@@ -26,7 +26,7 @@ struct DropdownMenu: View {
             )
             .zIndex(2)
             
-            if isExpanded {
+            if isExpanded { // Dropdown list appears when expanded
                 DropdownList(
                     options: options,
                     selectedOption: $selectedOption,
@@ -37,14 +37,15 @@ struct DropdownMenu: View {
                     yOffset: yOffset
                 )
                 .zIndex(1)
-                .offset(y: yOffset) // Aligns top of list with bottom of button
+                .offset(y: yOffset)
             }
         }
-        .frame(width: 160, height: 36) // Fixed height for button area
+        .frame(width: 160, height: 36)
         
     }
 }
 
+// DropdownButton: The clickable button for the dropdown
 private struct DropdownButton: View {
     let selectedOption: String?
     let isExpanded: Bool
@@ -75,7 +76,7 @@ private struct DropdownButton: View {
     }
 }
 
-
+// DropdownList: The list of selectable options, with dividers between items
 private struct DropdownList: View {
     let options: [String]
     @Binding var selectedOption: String?
@@ -122,7 +123,4 @@ private struct DropdownList: View {
         .frame(width: 280)
         .offset(x: xOffset)
     }
-}
-#Preview {
-    TrackerView()
 }

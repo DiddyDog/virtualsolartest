@@ -1,5 +1,6 @@
 import SwiftUI
 
+// Displays a date in a styled box: month/year on top, day below
 struct DateBoxView: View {
     let date: Date
     
@@ -31,19 +32,19 @@ struct DateBoxView: View {
                 .stroke(Color("AccentColor1"), lineWidth: 2)
         )
     }
-    
+    // Helper: returns month as uppercase string
     private var monthString: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM"
         return formatter.string(from: date).uppercased()
     }
-    
+    // Helper: returns day as string
     private var dayString: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd"
         return formatter.string(from: date)
     }
-    
+    // Helper: returns year as string
     private var yearString: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy"
@@ -53,5 +54,5 @@ struct DateBoxView: View {
 
 #Preview {
     DateBoxView(date: Date())
-        .background(Color("BackgroundColor")) // For preview purposes
+        .background(Color("BackgroundColor"))
 }
