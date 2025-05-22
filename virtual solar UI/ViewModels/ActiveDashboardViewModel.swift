@@ -77,15 +77,16 @@ class ActiveDashboardViewModel: ObservableObject {
         generateEnergyData(for: date)
     }
     
+    // ActiveDashboardViewModel.swift
     func canNavigateToNextMonth() -> Bool {
         let calendar = Calendar.current
         guard let nextMonth = calendar.date(byAdding: .month, value: 1, to: currentDate) else {
             return false
         }
-        // Compare just the month and year components
-        let current = calendar.dateComponents([.year, .month], from: Date())
-        let next = calendar.dateComponents([.year, .month], from: nextMonth)
-        return next.month! <= current.month! && next.year! <= current.year!
+        // Set both dates to the first of their month for accurate comparison
+        let nextMonthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: nextMonth))!
+        let nowMonthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: Date()))!
+        return nextMonthStart <= nowMonthStart
     }
     
     // This function will be implemented later to fetch data from Firebase

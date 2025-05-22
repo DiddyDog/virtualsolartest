@@ -208,19 +208,18 @@ struct ActiveDashboardView: View {
             
             HStack {
                 Button(action: {
-                    // Previous month action
-                    let currentMonth = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: Date()))!
-                    if let previousMonth = Calendar.current.date(byAdding: .month, value: -1, to: currentMonth) {
+                    // Previous month action - use viewModel.currentDate as reference
+                    if let previousMonth = Calendar.current.date(byAdding: .month, value: -1, to: viewModel.currentDate) {
                         viewModel.loadDataForMonth(previousMonth)
                     }
                 }) {
                     Image(systemName: "chevron.left")
-                            .foregroundColor(.white)
-                            .frame(width: 36, height: 36)
-                            .background(Color("BackgroundColor"))
-                            .clipShape(Circle())
+                        .foregroundColor(.white)
+                        .frame(width: 36, height: 36)
+                        .background(Color("BackgroundColor"))
+                        .clipShape(Circle())
                 }
-                .padding(.leading, 32)
+                .padding(.leading, 22)
                 Spacer()
                 
                 Text(viewModel.currentMonthYear)
@@ -230,12 +229,10 @@ struct ActiveDashboardView: View {
                 Spacer()
                 
                 Button(action: {
-                    // Next month action (only allow if not future month)
                     let calendar = Calendar.current
                     if let nextMonth = calendar.date(byAdding: .month, value: 1, to: viewModel.currentDate) {
-                        let current = calendar.dateComponents([.year, .month], from: Date())
-                        let next = calendar.dateComponents([.year, .month], from: nextMonth)
-                        if next.month! <= current.month! && next.year! <= current.year! {
+                        // Only allow advancing if nextMonth is not in the future
+                        if nextMonth <= Date() {
                             viewModel.loadDataForMonth(nextMonth)
                         }
                     }
@@ -246,9 +243,10 @@ struct ActiveDashboardView: View {
                         .background(Color("BackgroundColor"))
                         .clipShape(Circle())
                 }
-                .padding(.trailing, 32)
+                .padding(.trailing, 22)
                 .disabled(!viewModel.canNavigateToNextMonth())
             }
+            
             HStack {
                 VStack {
                     Text("Active")
@@ -291,6 +289,7 @@ struct ActiveDashboardView: View {
 
     // MARK: - Energy Bar Chart
     private var energyBarChart: some View {
+        
         HStack(alignment: .top, spacing: 0) {
             // Fixed Y-axis
             Chart {
@@ -313,6 +312,7 @@ struct ActiveDashboardView: View {
                             Text("\(Int(kW))")
                                 .font(.custom("Poppins", size: 14))
                                 .foregroundColor(.white)
+                                .offset(y: -10)
                         }
                     }
                 }
