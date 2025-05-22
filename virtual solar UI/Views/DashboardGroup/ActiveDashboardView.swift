@@ -1,14 +1,20 @@
 import SwiftUI
+import Charts
 
 // Main Active Dashboard View
 struct ActiveDashboardView: View {
+    enum FocusedField{
+        case dec
+    }
+    @StateObject private var viewModel = ActiveDashboardViewModel()
+    @State private var energyBillAmount = ""
+    @FocusState private var focusedField: FocusedField?
+    
+    
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background Color
-                Color("BackgroundColor")
-                    .ignoresSafeArea()
-
+                
                 VStack(spacing: 20) {
                     
                     // MARK: - Allocation Navigation Button
@@ -18,9 +24,20 @@ struct ActiveDashboardView: View {
                     savingsSection
                     
                     // MARK: - Active Panels Section
-                    activePanelsSection
+                    virtualPanelsSection
                 }
                 .padding(.bottom, 50)
+            }
+            // Add toolbar here for keyboard dismissal
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button {
+                        focusedField = nil
+                    } label: {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                    }
+                }
             }
         }
     }
@@ -32,22 +49,24 @@ struct ActiveDashboardView: View {
                 HStack {
                     Text("Select allocations")
                         .font(.custom("PoppinsSemiBold", size: 16))
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
                     
                     Spacer()
                     
                     Image(systemName: "chevron.right")
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
                 }
                 .padding()
-                .background(Color.gray)
+                .background(Color("AccentColor5"))
                 .cornerRadius(8)
+                Spacer()
             }
         }
         .padding(.horizontal)
+        
     }
     
-    // MARK: - Savings Section View
+    // MARK: - Savings Section Box
     private var savingsSection: some View {
         VStack(alignment: .leading, spacing: 25) {
             // Info Cards
@@ -56,172 +75,313 @@ struct ActiveDashboardView: View {
             // Savings Data
             savingsData
         }
-        .padding()
-        .background(Color.black.opacity(0.6))
-        .cornerRadius(20)
-        .padding(.horizontal)
+        .frame(maxWidth: 330)
+        .padding(.vertical, 12) // was .padding()
+        .padding(.horizontal, 14)
+        .background(Color("AccentColor4"))
+        .cornerRadius(26)
+        
     }
     
     // MARK: - Info Cards
     private var infoCards: some View {
-        VStack(spacing: 15) {
-            HStack(spacing: 15) {
-                InfoCard(title: "Active", value: "10.8kW")
-                InfoCard(title: "Last quarter", value: "$157.50")
+        VStack(spacing: 8) {
+            HStack(spacing: 10) {
+                InfoCard(title: "Active", value: "\(viewModel.activePower) kW")
+                InfoCard(title: "Last quarter", value: "$\(viewModel.lastQuarterSavings)")
             }
-            HStack(spacing: 15) {
-                InfoCard(title: "Total savings", value: "$2,679.45")
-                InfoCard(title: "This quarter to date", value: "$52.50")
+            
+            HStack(spacing: 10) {
+                InfoCard(title: "Total savings", value: "$\(viewModel.totalSavings)")
+                InfoCard(title: "This quarter to date", value: "$\(viewModel.currentQuarterSavings)")
             }
         }
+        .padding(.vertical, 8)
+        .padding(.horizontal,36)
     }
     
     // MARK: - Savings Data
     private var savingsData: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Savings")
-                .font(.title3)
-                .foregroundColor(.white)
-
-            HStack {
-                VStack {
-                    ZStack {
-                        Circle()
-                            .fill(Color("AccentColour3"))
-                            .frame(width: 100, height: 100)
-
-                        Text("35 %\nsaving")
-                            .font(.caption)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                    }
-                }
-
+            HStack{
                 Spacer()
-
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Text("Electricity bill")
-                            .font(.caption)
-                            .foregroundColor(.gray)
+                Text("Savings")
+                    .font(.custom("Poppins-SemiBold", size: 34))
+                    .foregroundColor(.white)
+                    .padding(.horizontal)
+                Spacer()
+            }
+            .padding(.bottom, 20)
+            
+            HStack {
+                
+                ZStack {
+                    Circle()
+                        .fill(Color("BackgroundColor"))
+                        .frame(width: 100, height: 100)
+                    
+                    Text("35%\nsaved")
+                        .font(.custom("Poppins-SemiBold", size: 16))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                }
+                
+                
+                .padding(.top, 20)
+                .padding(.leading, 20)
+                
+                Spacer()
+                
+                HStack {
+                    Spacer().frame(width: 50)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("Last quater")
+                            .font(.custom("Poppins-SemiBold", size: 15))
+                            .foregroundColor(.white)
                         Spacer()
-                        Text("$450")
-                            .font(.headline)
-                            .foregroundColor(.yellow)
-                    }
-
-                    HStack {
-                        Text("Solar payout")
-                            .font(.caption)
-                            .foregroundColor(.gray)
+                        Text("$\(viewModel.lastQuarterAmount)")
+                            .font(.custom("Poppins-SemiBold", size: 22))
+                            .foregroundColor(Color("AccentColor2"))
+                        
+                        Spacer().padding(.top, 4)
+                        Text("Old energy bill")
+                            .font(.custom("Poppins-SemiBold", size: 15))
+                            .foregroundColor(.white)
                         Spacer()
-                        Text("$250")
-                            .font(.headline)
-                            .foregroundColor(.yellow)
+                        HStack {
+                            HStack {
+                                //fix this and fix preview
+                                Text("$")
+                                    .font(.custom("Poppins-SemiBold", size: 22))
+                                    .foregroundColor(Color("AccentColor2"))
+                                TextField("Amount", text: $energyBillAmount)
+                                    .focused($focusedField, equals: .dec)
+                                    .keyboardType(.decimalPad)
+                                    .font(.custom("Poppins-SemiBold", size: 22))
+                                    .foregroundColor(Color("AccentColor5"))
+                                    .frame(width: 92)
+                                Spacer()
+                            }
+                            // Removed .toolbar from here
+                        }
                     }
                 }
             }
-
-            Divider()
-                .background(Color.yellow)
-
+            //Content under savings graph
+            HStack {
+                Spacer()
+                Rectangle()
+                    .fill(Color("AccentColor2"))
+                    .frame(width: 300, height: 1.5)
+                Spacer()
+            }
+            .padding(.top, 33)
+            .padding(.bottom, 6)
+            
             Text("To eliminate your Electricity Bill visit our ")
-                .font(.caption2)
-                .foregroundColor(.gray)
+                .font(.custom("Poppins", size: 13))
+                .foregroundColor(.white)
             +
             Text("website")
-                .font(.caption2)
+                .font(.custom("Poppins", size: 13))
                 .foregroundColor(.white)
                 .underline()
             +
             Text(" to update your SolarCloud portfolio.")
-                .font(.caption2)
-                .foregroundColor(.gray)
+                .font(.custom("Poppins", size: 13))
         }
+        .foregroundColor(.white)
+        .padding(.horizontal)
+        .padding(.bottom, 20)
     }
     
-    // MARK: - Active Panels Section View
-    private var activePanelsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("My active panels")
-                .font(.title3)
-                .foregroundColor(.white)
-
-            HStack {
-                Button(action: {}) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.white)
-                }
-
+    // MARK: - Virtual Panels Section View
+    private var virtualPanelsSection: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            HStack(alignment: .center) {
                 Spacer()
-
-                Text("June 2021")
+                Text("My virtual panels")
+                    .font(.custom("Poppins-SemiBold", size: 34))
                     .foregroundColor(.white)
-
                 Spacer()
-
-                Button(action: {}) {
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.white)
-                }
             }
-
-            Text("Total Energy")
-                .font(.caption)
-                .foregroundColor(.gray)
-
-            Text("18155 kW")
-                .font(.headline)
-                .foregroundColor(Color("AccentColor1"))
-
+            
+            HStack {
+                Button(action: {
+                    // Previous month action
+                    let currentMonth = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: Date()))!
+                    if let previousMonth = Calendar.current.date(byAdding: .month, value: -1, to: currentMonth) {
+                        viewModel.loadDataForMonth(previousMonth)
+                    }
+                }) {
+                    Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                            .frame(width: 36, height: 36)
+                            .background(Color("BackgroundColor"))
+                            .clipShape(Circle())
+                }
+                .padding(.leading, 32)
+                Spacer()
+                
+                Text(viewModel.currentMonthYear)
+                    .foregroundColor(.white)
+                    .font(.custom("Poppins-SemiBold", size: 24))
+                
+                Spacer()
+                
+                Button(action: {
+                    // Next month action (only allow if not future month)
+                    let calendar = Calendar.current
+                    if let nextMonth = calendar.date(byAdding: .month, value: 1, to: viewModel.currentDate) {
+                        let current = calendar.dateComponents([.year, .month], from: Date())
+                        let next = calendar.dateComponents([.year, .month], from: nextMonth)
+                        if next.month! <= current.month! && next.year! <= current.year! {
+                            viewModel.loadDataForMonth(nextMonth)
+                        }
+                    }
+                }) {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(viewModel.canNavigateToNextMonth() ? .white : .gray)
+                        .frame(width: 36, height: 36)
+                        .background(Color("BackgroundColor"))
+                        .clipShape(Circle())
+                }
+                .padding(.trailing, 32)
+                .disabled(!viewModel.canNavigateToNextMonth())
+            }
+            HStack {
+                VStack {
+                    Text("Active")
+                        .font(.custom("Poppins", size: 16))
+                        .foregroundColor(.white)
+                    
+                    Text(viewModel.totalEnergy)
+                        .font(.headline)
+                        .foregroundColor(Color("AccentColor1"))
+                    
+                    Image("LineGraphIcon")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 60, height: 24)
+                }
+                Spacer()
+                
+                Image("CO2Icon")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 24)
+                
+                Text(viewModel.totalCO2Saved + " Kg's")
+                    .font(.custom("Poppins", size: 16))
+                    .foregroundColor(Color("AccentColor1"))
+                +
+                Text(" saved")
+                    .font(.custom("Poppins", size: 16))
+                    .foregroundColor(.white)
+            }
+            
             energyBarChart
         }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color("AccentColor4"))
+        .cornerRadius(26)
         .padding(.horizontal)
     }
-    
+
     // MARK: - Energy Bar Chart
     private var energyBarChart: some View {
-        HStack(alignment: .bottom, spacing: 6) {
-            ForEach(1..<10) { i in
-                VStack {
-                    if i == 6 {
-                        Text("320kW")
-                            .font(.caption2)
-                            .foregroundColor(.white)
-                    }
-
-                    Rectangle()
-                        .fill(i == 9 ? Color.yellow : Color("AccentColor1"))
-                        .frame(width: 14, height: CGFloat(arc4random_uniform(200) + 100))
+        HStack(alignment: .top, spacing: 0) {
+            // Fixed Y-axis
+            Chart {
+                // Empty content just for the axis
+                ForEach([0], id: \.self) { _ in
+                    BarMark(
+                        x: .value("", ""),
+                        y: .value("", 0)
+                    )
+                    .opacity(0)
                 }
             }
-        }
-        .frame(height: 200)
-    }
-}
+            .chartYScale(domain: 0...450)
+            .chartYAxis {
+                AxisMarks(position: .leading, values: .stride(by: 100)) { value in
+                    AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel {
+                        if let kW = value.as(Double.self) {
+                            Text("\(Int(kW))")
+                                .font(.custom("Poppins", size: 14))
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
+            }
+            .chartXAxis(.hidden)
+            .frame(width: 40, height: 260)
+            .padding(.trailing, 4)
+            
 
-// InfoCard Component
+            // Scrollable chart area
+            ScrollView(.horizontal, showsIndicators: false) {
+                Chart {
+                    ForEach(viewModel.dailyEnergyData) { dayData in
+                        BarMark(
+                            x: .value("Day", dayData.dayString),
+                            y: .value("kW", dayData.kW)
+                        )
+                        .foregroundStyle(Color("AccentColor1"))
+                        .annotation(position: .top) {
+                            Text("\(Int(dayData.kW))")
+                                .font(.custom("Poppins", size: 14))
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
+                .chartYScale(domain: 0...450)
+                .chartYAxis(.hidden)
+                .chartXAxis {
+                    AxisMarks(values: .automatic) { value in
+                        AxisGridLine()
+                        AxisTick()
+                        AxisValueLabel {
+                            if let day = value.as(String.self) {
+                                Text(day)
+                                    .font(.custom("Poppins", size: 14))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                    }
+                }
+                .frame(width: CGFloat(viewModel.dailyEnergyData.count) * 40, height: 260)
+            }
+        }
+        
+    }}
+
+//MARK: - InfoCard Component
 struct InfoCard: View {
     let title: String
     let value: String
-
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .center, spacing: 8) {
             Text(title)
-                .font(.custom("Poppins", size: 10))
-                .foregroundColor(.gray)
-
+                .font(.custom("Poppins-SemiBold", size: 16))
+                .foregroundColor(.white)
+            Spacer()
             Text(value)
-                .font(.headline)
+                .font(.custom("Poppins-SemiBold", size: 20))
                 .foregroundColor(Color("AccentColor2"))
+                .padding(.bottom, 10)
         }
         .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(width: 150, height: 140)
         .background(Color("BackgroundColor"))
         .cornerRadius(12)
     }
 }
 
 #Preview {
-    ActiveDashboardView()
+    DashboardView()
 }

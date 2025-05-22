@@ -62,20 +62,18 @@ struct TrackerView: View {
         NavigationStack {
             ZStack {
                 Color("BackgroundColor").ignoresSafeArea()
-                VStack(spacing: 16) {
-                    // Header with logo
-                    HStack {
-                        Spacer()
-                        Image("SolarCloudLogo")
-                            .resizable()
-                            .frame(width: 28.86, height: 50)
-                        Spacer()
-                    }
-                    .padding(.top, 1)
-
+                VStack{
                     ScrollView {
                         VStack(spacing: 16) {
-                            
+                            // Header with logo
+                            HStack {
+                                Spacer()
+                                Image("SolarCloudLogo")
+                                    .resizable()
+                                    .frame(width: 28.86, height: 50)
+                                Spacer()
+                            }
+                            .padding(.top, 1)
                             VStack(spacing: 4) {
                                 HStack(spacing: 8) {
                                     Image("ListIcon")
