@@ -6,66 +6,16 @@ struct PendingDashboardView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header Section
-            HeaderView(selectedTab: $selectedTab)
-
-            Spacer()
-
-            // No Pending Info Card
             PendingInfoCard()
-
+            
+            Spacer()
             // Solar Savings Input Card
             SavingsInputCard(billAmount: $billAmount)
-
-            Spacer()
-
-            // Bottom Tab Bar
-            BottomTabBarView()
         }
-        .background(Color(red: 24/255, green: 26/255, blue: 36/255))
+        .background(Color("BackgroundColor"))
         .edgesIgnoringSafeArea(.bottom)
     }
 }
-
-struct HeaderView: View {
-    @Binding var selectedTab: String
-
-    var body: some View {
-        VStack(spacing: 16) {
-            // Header Logo
-            Image("solar_logo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 40, height: 40)
-                .padding(.top, 20)
-
-            // Title
-            HStack {
-                Image(systemName: "calendar")
-                    .foregroundColor(.mint)
-                Text("My panels")
-                    .foregroundColor(.white)
-                    .font(.title3.bold())
-                Spacer()
-            }
-            .padding(.horizontal)
-
-            // Tab Switch
-            HStack(spacing: 0) {
-                TabButton(title: "Active", isSelected: selectedTab == "Active") {
-                    selectedTab = "Active"
-                }
-                TabButton(title: "Pending", isSelected: selectedTab == "Pending") {
-                    selectedTab = "Pending"
-                }
-            }
-            .padding(.horizontal)
-            .background(Color.gray.opacity(0.2))
-            .cornerRadius(10)
-        }
-    }
-}
-
 struct TabButton: View {
     var title: String
     var isSelected: Bool
@@ -131,21 +81,6 @@ struct SavingsInputCard: View {
         .background(Color.black.opacity(0.4))
         .cornerRadius(20)
         .padding(.horizontal)
-    }
-}
-
-struct BottomTabBarView: View {
-    var body: some View {
-        HStack {
-            BottomTabBarItem(icon: "calendar", title: "Dashboard", isSelected: true)
-            BottomTabBarItem(icon: "doc.text", title: "Tracker")
-            BottomTabBarItem(icon: "plus.slash.minus", title: "Calculator")
-            BottomTabBarItem(icon: "person", title: "More")
-        }
-        .padding(.top)
-        .padding(.bottom, 10)
-        .background(Color.black.opacity(0.3))
-        .font(.caption)
     }
 }
 
