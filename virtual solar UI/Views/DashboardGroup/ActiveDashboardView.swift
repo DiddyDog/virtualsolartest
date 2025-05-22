@@ -28,7 +28,7 @@ struct ActiveDashboardView: View {
                 }
                 .padding(.bottom, 50)
             }
-            // Add toolbar here for keyboard dismissal
+            // tool bar for decimal keypad
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -115,20 +115,9 @@ struct ActiveDashboardView: View {
             
             HStack {
                 
-                ZStack {
-                    Circle()
-                        .fill(Color("BackgroundColor"))
-                        .frame(width: 100, height: 100)
-                    
-                    Text("35%\nsaved")
-                        .font(.custom("Poppins-SemiBold", size: 16))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                }
-                
-                
-                .padding(.top, 20)
-                .padding(.leading, 20)
+                SavingsProgressCircle(percentage: calculatedSavingsPercentage)
+                    .padding(.top, 20)
+                    .padding(.leading, 20)
                 
                 Spacer()
                 
@@ -158,7 +147,7 @@ struct ActiveDashboardView: View {
                                     .focused($focusedField, equals: .dec)
                                     .keyboardType(.decimalPad)
                                     .font(.custom("Poppins-SemiBold", size: 22))
-                                    .foregroundColor(Color("AccentColor5"))
+                                    .foregroundColor(Color("AccentColor2"))
                                     .frame(width: 92)
                                 Spacer()
                             }
@@ -193,6 +182,44 @@ struct ActiveDashboardView: View {
         .foregroundColor(.white)
         .padding(.horizontal)
         .padding(.bottom, 20)
+    }
+    
+    //MARK: - savings circle percentage calculation
+    private var calculatedSavingsPercentage: Double {
+        guard let oldBill = Double(energyBillAmount),
+              oldBill > 0,
+              let lastQuarter = Double(viewModel.lastQuarterSavings) else {
+            return 0
+        }
+        return min(lastQuarter / oldBill, 1.0) // Clamp to 1.0 (100%)
+    }
+    
+
+    //MARK: - Savings Progress Circle
+    struct SavingsProgressCircle: View {
+        var percentage: Double // 0...1
+
+        var body: some View {
+            ZStack {
+                Circle()
+                    .stroke(Color("BackgroundColor"), lineWidth: 12)
+                    .frame(width: 100, height: 100)
+                Circle()
+                    .trim(from: 0, to: percentage)
+                    .stroke(Color("AccentColor1"), style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .frame(width: 100, height: 100)
+                    .animation(.easeOut(duration: 1.0), value: percentage)
+                VStack {
+                    Text("\(Int(percentage * 100))%")
+                        .font(.custom("Poppins-SemiBold", size: 22))
+                        .foregroundColor(.white)
+                    Text("saved")
+                        .font(.custom("Poppins-SemiBold", size: 16))
+                        .foregroundColor(.white)
+                }
+            }
+        }
     }
     
     // MARK: - Virtual Panels Section View
