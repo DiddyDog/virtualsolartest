@@ -27,11 +27,14 @@ struct CalculatorView: View {
                         Image("SolarCloudLogo")
                             .resizable()
                             .frame(width: 28.86, height: 50.0)
-                            .padding(.top)
+                            .padding(.top, 1)
 
                         HStack {
-                            Image(systemName: "doc.text.magnifyingglass")
-                                .foregroundColor(.accentColor)
+                            Image("CalculatorIcon")
+                                .foregroundColor(Color("AccentColor1"))
+                                .fixedSize()
+                                .frame(width: 8, height: 8)
+                                .padding()
                             Text("Calculator")
                                 .font(.title2)
                                 .bold()

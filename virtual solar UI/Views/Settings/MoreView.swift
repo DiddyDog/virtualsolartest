@@ -34,8 +34,11 @@ struct MoreView: View {
                             .padding(.top)
 
                         HStack {
-                            Image(systemName: "person.circle")
-                                .foregroundColor(.accentColor)
+                            Image("UserIcon")
+                                .foregroundColor(Color("AccentColor1"))
+                                .fixedSize()
+                                .frame(width: 8, height: 8)
+                                .padding()
                             Text("Settings")
                                 .font(.title2)
                                 .bold()

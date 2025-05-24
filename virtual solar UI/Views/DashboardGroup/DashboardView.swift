@@ -16,7 +16,7 @@ struct DashboardView: View {
                         Image("SolarCloudLogo")
                             .resizable()
                             .frame(width: 28.86, height: 50)
-                            .padding(.top, 64)
+                            .padding(.top, 1)
 
                         HStack(spacing: 8) {
                             Image("SolarIcon")

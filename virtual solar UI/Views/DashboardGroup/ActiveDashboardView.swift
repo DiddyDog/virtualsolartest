@@ -28,7 +28,7 @@ struct ActiveDashboardView: View {
                 }
                 .padding(.bottom, 50)
             }
-            // Add toolbar here for keyboard dismissal
+            // tool bar for decimal keypad
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -45,7 +45,7 @@ struct ActiveDashboardView: View {
     // MARK: - Allocation Navigation Button View
     private var allocationNavigationButton: some View {
         HStack {
-            NavigationLink(destination: AllocationView()) {
+            NavigationLink(destination: AllocationsHomeView()) {
                 HStack {
                     Text("Select allocations")
                         .font(.custom("PoppinsSemiBold", size: 16))
@@ -115,20 +115,9 @@ struct ActiveDashboardView: View {
             
             HStack {
                 
-                ZStack {
-                    Circle()
-                        .fill(Color("BackgroundColor"))
-                        .frame(width: 100, height: 100)
-                    
-                    Text("35%\nsaved")
-                        .font(.custom("Poppins-SemiBold", size: 16))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                }
-                
-                
-                .padding(.top, 20)
-                .padding(.leading, 20)
+                SavingsProgressCircle(percentage: calculatedSavingsPercentage)
+                    .padding(.top, 20)
+                    .padding(.leading, 20)
                 
                 Spacer()
                 
@@ -158,7 +147,7 @@ struct ActiveDashboardView: View {
                                     .focused($focusedField, equals: .dec)
                                     .keyboardType(.decimalPad)
                                     .font(.custom("Poppins-SemiBold", size: 22))
-                                    .foregroundColor(Color("AccentColor5"))
+                                    .foregroundColor(Color("AccentColor2"))
                                     .frame(width: 92)
                                 Spacer()
                             }
@@ -195,6 +184,44 @@ struct ActiveDashboardView: View {
         .padding(.bottom, 20)
     }
     
+    //MARK: - savings circle percentage calculation
+    private var calculatedSavingsPercentage: Double {
+        guard let oldBill = Double(energyBillAmount),
+              oldBill > 0,
+              let lastQuarter = Double(viewModel.lastQuarterSavings) else {
+            return 0
+        }
+        return min(lastQuarter / oldBill, 1.0) // Clamp to 1.0 (100%)
+    }
+    
+
+    //MARK: - Savings Progress Circle
+    struct SavingsProgressCircle: View {
+        var percentage: Double // 0...1
+
+        var body: some View {
+            ZStack {
+                Circle()
+                    .stroke(Color("BackgroundColor"), lineWidth: 12)
+                    .frame(width: 100, height: 100)
+                Circle()
+                    .trim(from: 0, to: percentage)
+                    .stroke(Color("AccentColor1"), style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .frame(width: 100, height: 100)
+                    .animation(.easeOut(duration: 1.0), value: percentage)
+                VStack {
+                    Text("\(Int(percentage * 100))%")
+                        .font(.custom("Poppins-SemiBold", size: 22))
+                        .foregroundColor(.white)
+                    Text("saved")
+                        .font(.custom("Poppins-SemiBold", size: 16))
+                        .foregroundColor(.white)
+                }
+            }
+        }
+    }
+    
     // MARK: - Virtual Panels Section View
     private var virtualPanelsSection: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -208,19 +235,18 @@ struct ActiveDashboardView: View {
             
             HStack {
                 Button(action: {
-                    // Previous month action
-                    let currentMonth = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: Date()))!
-                    if let previousMonth = Calendar.current.date(byAdding: .month, value: -1, to: currentMonth) {
+                    // Previous month action - use viewModel.currentDate as reference
+                    if let previousMonth = Calendar.current.date(byAdding: .month, value: -1, to: viewModel.currentDate) {
                         viewModel.loadDataForMonth(previousMonth)
                     }
                 }) {
                     Image(systemName: "chevron.left")
-                            .foregroundColor(.white)
-                            .frame(width: 36, height: 36)
-                            .background(Color("BackgroundColor"))
-                            .clipShape(Circle())
+                        .foregroundColor(.white)
+                        .frame(width: 36, height: 36)
+                        .background(Color("BackgroundColor"))
+                        .clipShape(Circle())
                 }
-                .padding(.leading, 32)
+                .padding(.leading, 22)
                 Spacer()
                 
                 Text(viewModel.currentMonthYear)
@@ -230,12 +256,10 @@ struct ActiveDashboardView: View {
                 Spacer()
                 
                 Button(action: {
-                    // Next month action (only allow if not future month)
                     let calendar = Calendar.current
                     if let nextMonth = calendar.date(byAdding: .month, value: 1, to: viewModel.currentDate) {
-                        let current = calendar.dateComponents([.year, .month], from: Date())
-                        let next = calendar.dateComponents([.year, .month], from: nextMonth)
-                        if next.month! <= current.month! && next.year! <= current.year! {
+                        // Only allow advancing if nextMonth is not in the future
+                        if nextMonth <= Date() {
                             viewModel.loadDataForMonth(nextMonth)
                         }
                     }
@@ -246,9 +270,10 @@ struct ActiveDashboardView: View {
                         .background(Color("BackgroundColor"))
                         .clipShape(Circle())
                 }
-                .padding(.trailing, 32)
+                .padding(.trailing, 22)
                 .disabled(!viewModel.canNavigateToNextMonth())
             }
+            
             HStack {
                 VStack {
                     Text("Active")
@@ -291,6 +316,7 @@ struct ActiveDashboardView: View {
 
     // MARK: - Energy Bar Chart
     private var energyBarChart: some View {
+        
         HStack(alignment: .top, spacing: 0) {
             // Fixed Y-axis
             Chart {
@@ -313,6 +339,7 @@ struct ActiveDashboardView: View {
                             Text("\(Int(kW))")
                                 .font(.custom("Poppins", size: 14))
                                 .foregroundColor(.white)
+                                .offset(y: -10)
                         }
                     }
                 }
