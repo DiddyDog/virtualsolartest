@@ -45,7 +45,7 @@ struct ActiveDashboardView: View {
     // MARK: - Allocation Navigation Button View
     private var allocationNavigationButton: some View {
         HStack {
-            NavigationLink(destination: AllocationView()) {
+            NavigationLink(destination: AllocationsHomeView()) {
                 HStack {
                     Text("Select allocations")
                         .font(.custom("PoppinsSemiBold", size: 16))
