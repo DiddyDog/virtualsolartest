@@ -5,7 +5,6 @@ struct MoreView: View {
     enum SettingOption: String, CaseIterable, Identifiable {
         case myDetails = "My Details"
         case statement = "Statement"
-        case progressTracker = "Progress Tracker"
         case allocations = "Allocations"
         case videoExplainer = "Video Explainer"
         case legalDocument = "Legal Document"
@@ -132,8 +131,6 @@ struct MoreView: View {
             MyDetailsView(showUpdatePopup: $showPopup)
         case .statement:
             StatementView()
-        case .progressTracker:
-            ProgressTrackerView()
         case .allocations:
             AllocationsHomeView()
         case .videoExplainer:

@@ -32,17 +32,32 @@ struct MyDetailsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                // ✅ Logo
                 Image("SolarCloudLogo")
                     .resizable()
-                    .frame(width: 40, height: 40)
+                    .frame(width: 28.86, height: 50)
                     .padding(.top)
 
-                Text("My Details")
-                    .font(.title)
-                    .bold()
-                    .foregroundColor(.white)
+                // ✅ Custom Back Button + Title
+                HStack(spacing: 10) {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.title2)
+                            .foregroundColor(Color("AccentColor2"))
+                    }
 
-                // Sections
+                    Text("Details")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+
+                    Spacer()
+                }
+                .padding(.horizontal)
+
+                // MARK: - Sections
                 collapsibleSection(title: "Basic info", isExpanded: $showBasicInfo) {
                     Group {
                         profileTextField("First name", text: $firstName)
@@ -100,6 +115,7 @@ struct MyDetailsView: View {
         }
         .background(Color("BackgroundColor").ignoresSafeArea())
         .onAppear(perform: loadUserData)
+        .navigationBarBackButtonHidden(true) // ✅ Hides default nav back button
     }
 
     // MARK: - Firestore
