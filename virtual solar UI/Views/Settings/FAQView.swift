@@ -1,27 +1,30 @@
-//
-//  FAQ.swift
-//  virtual solar UI
-//
-//  Created by 陈祉卓 on 2025/5/6.
-//
 import SwiftUI
+import FirebaseFirestore
 
 struct FAQItem: Identifiable {
-    let id = UUID()
+    let id: String
     let question: String
     let answer: String
     var isExpanded: Bool = false
+
+    init(id: String, question: String, answer: String, isExpanded: Bool = false) {
+        self.id = id
+        self.question = question
+        self.answer = answer
+        self.isExpanded = isExpanded
+    }
+
+    init(from dict: [String: Any]) {
+        self.id = dict["id"] as? String ?? UUID().uuidString
+        self.question = dict["question"] as? String ?? "Unknown question"
+        self.answer = dict["answer"] as? String ?? "Unknown answer"
+        self.isExpanded = false
+    }
 }
 
 struct FAQView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var faqs = [
-        FAQItem(question: "FAQ 1", answer: "IT guys – get the text/copy from website"),
-        FAQItem(question: "FAQ 2", answer: "Answer for FAQ 2"),
-        FAQItem(question: "FAQ 3", answer: "Answer for FAQ 3"),
-        FAQItem(question: "FAQ 4", answer: "Answer for FAQ 4"),
-        FAQItem(question: "FAQ 5", answer: "Answer for FAQ 5")
-    ]
+    @State private var faqs: [FAQItem] = []
 
     var body: some View {
         NavigationStack {
@@ -29,7 +32,7 @@ struct FAQView: View {
                 Color("BackgroundColor").ignoresSafeArea()
 
                 VStack(spacing: 20) {
-                    // ✅ Logo at the top
+                    // ✅ Logo
                     HStack {
                         Spacer()
                         Image("SolarCloudLogo")
@@ -40,11 +43,9 @@ struct FAQView: View {
                     }
                     .padding(.top)
 
-                    // ✅ Back button + FAQ Title
+                    // ✅ Back + Title
                     HStack(spacing: 10) {
-                        Button(action: {
-                            dismiss()
-                        }) {
+                        Button { dismiss() } label: {
                             Image(systemName: "chevron.left")
                                 .font(.title2)
                                 .foregroundColor(Color("AccentColor2"))
@@ -59,7 +60,7 @@ struct FAQView: View {
                     }
                     .padding(.horizontal)
 
-                    // ✅ FAQ List
+                    // ✅ FAQ Cards
                     ScrollView {
                         VStack(spacing: 16) {
                             ForEach(faqs.indices, id: \.self) { index in
@@ -71,7 +72,27 @@ struct FAQView: View {
                     }
                 }
             }
+            .onAppear {
+                fetchFAQsFromFirestore()
+            }
             .navigationBarBackButtonHidden(true)
+        }
+    }
+
+    // 🔥 Fetch from Firestore
+    func fetchFAQsFromFirestore() {
+        let db = Firestore.firestore()
+        db.collection("faq").getDocuments { snapshot, error in
+            if let error = error {
+                print("❌ Error fetching FAQs: \(error.localizedDescription)")
+                return
+            }
+
+            guard let docs = snapshot?.documents else { return }
+
+            self.faqs = docs.map { doc in
+                FAQItem(from: doc.data())
+            }
         }
     }
 }

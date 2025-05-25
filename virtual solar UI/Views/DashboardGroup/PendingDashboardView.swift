@@ -1,21 +1,77 @@
 import SwiftUI
+import Firebase
+import FirebaseFirestore
 
 struct PendingDashboardView: View {
-    @State private var selectedTab: String = "Pending"
     @State private var billAmount: String = ""
+    @State private var navigateToCalculator = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            PendingInfoCard()
-            
-            Spacer()
-            // Solar Savings Input Card
-            SavingsInputCard(billAmount: $billAmount)
+        NavigationStack {
+            VStack(spacing: 30) {
+                // No pending info card
+                PendingInfoCard()
+
+                // Calculator Section
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "list.bullet.rectangle")
+                            .foregroundColor(.mint)
+                        Text("Calculator")
+                            .font(.title2)
+                            .bold()
+                            .foregroundColor(.white)
+                    }
+
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Find out your solar savings")
+                            .foregroundColor(.white)
+                            .font(.headline)
+
+                        Text("Enter in your Electricity Bill")
+                            .foregroundColor(.white)
+
+                        TextField("$...", text: $billAmount)
+                            .keyboardType(.numberPad)
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+
+                        NavigationLink(
+                            destination: CalculatorView(initialBillAmount: billAmount),
+                            isActive: $navigateToCalculator
+                        ) {
+                            EmptyView()
+                        }
+
+
+                        Button(action: {
+                            navigateToCalculator = true
+                        }) {
+                            Text("Calculate")
+                                .foregroundColor(.black)
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color("AccentColor2"))
+                                .cornerRadius(30)
+                        }
+                    }
+                    .padding()
+                    .background(Color.black.opacity(0.4))
+                    .cornerRadius(20)
+                }
+                .padding(.horizontal)
+
+                Spacer()
+            }
+            .padding(.top)
+            .background(Color("BackgroundColor").ignoresSafeArea())
         }
-        .background(Color("BackgroundColor"))
-        .edgesIgnoringSafeArea(.bottom)
     }
 }
+
 struct TabButton: View {
     var title: String
     var isSelected: Bool
@@ -29,6 +85,11 @@ struct TabButton: View {
                 .background(isSelected ? Color.mint.opacity(0.3) : Color.clear)
                 .foregroundColor(isSelected ? .mint : .white.opacity(0.6))
                 .cornerRadius(8)
+                .frame(width: 140)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.mint, lineWidth: isSelected ? 1.8 : 1)
+                )
         }
     }
 }
@@ -36,19 +97,33 @@ struct TabButton: View {
 struct PendingInfoCard: View {
     var body: some View {
         VStack(spacing: 12) {
-            Text("You currently\nhave no pending\npanels.")
+            Text("You currently have no pending panels.")
                 .multilineTextAlignment(.center)
-                .font(.title2.bold())
+                .font(.body)
                 .foregroundColor(.white)
 
             Group {
                 Text("Visit our ") +
                 Text("website").underline() +
-                Text(" to see\navailable panels")
+                Text(" to see available panels")
             }
+            .font(.subheadline)
             .multilineTextAlignment(.center)
             .foregroundColor(.white.opacity(0.8))
-            .font(.subheadline)
+
+            Button(action: {
+                // Add action if needed
+            }) {
+                Text("Take me there")
+                    .foregroundColor(.black)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color("AccentColor2"))
+                    .cornerRadius(30)
+                    .frame(width: 160)
+            }
+            .padding(.top, 8)
         }
         .padding()
         .frame(maxWidth: .infinity)
@@ -57,48 +132,6 @@ struct PendingInfoCard: View {
         .padding(.horizontal)
     }
 }
-
-struct SavingsInputCard: View {
-    @Binding var billAmount: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Find out your solar\nsavings*")
-                .foregroundColor(.white)
-                .font(.title3.bold())
-
-            Text("Enter in your Electricity Bill")
-                .foregroundColor(.white)
-
-            TextField("$...", text: $billAmount)
-                .padding()
-                .background(Color.gray.opacity(0.2))
-                .foregroundColor(.white)
-                .cornerRadius(10)
-        }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .background(Color.black.opacity(0.4))
-        .cornerRadius(20)
-        .padding(.horizontal)
-    }
-}
-
-struct BottomTabBarItem: View {
-    var icon: String
-    var title: String
-    var isSelected: Bool = false
-
-    var body: some View {
-        VStack {
-            Image(systemName: icon)
-            Text(title)
-        }
-        .foregroundColor(isSelected ? .mint : .white)
-        .frame(maxWidth: .infinity)
-    }
-}
-
-#Preview {
+#Preview{
     PendingDashboardView()
 }

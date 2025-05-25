@@ -1,34 +1,43 @@
 import SwiftUI
 import Charts
+import Firebase
+import FirebaseFirestore
+import FirebaseAuth
 
-// Main Active Dashboard View
+struct DayEnergyData: Identifiable {
+    var id = UUID()
+    var dayString: String
+    var kW: Double
+    var date: Date
+}
+
 struct ActiveDashboardView: View {
-    enum FocusedField{
+    enum FocusedField {
         case dec
     }
-    @StateObject private var viewModel = ActiveDashboardViewModel()
+
+    @State private var dailyEnergyData: [DayEnergyData] = []
+    @State private var currentDate = Date()
     @State private var energyBillAmount = ""
+    @State private var activePower = ""
+    @State private var totalEnergy = ""
+    @State private var totalCO2Saved = ""
+    @State private var lastQuarterSavings = ""
+    @State private var totalSavings = ""
+    @State private var thisQuarterToDate = ""
     @FocusState private var focusedField: FocusedField?
-    
-    
+
     var body: some View {
         NavigationStack {
-            ZStack {
-                
-                VStack(spacing: 20) {
-                    
-                    // MARK: - Allocation Navigation Button
-                    allocationNavigationButton
-                    
-                    // MARK: - Savings Section
-                    savingsSection
-                    
-                    // MARK: - Active Panels Section
-                    virtualPanelsSection
-                }
-                .padding(.bottom, 50)
+            VStack(spacing: 20) {
+                allocationNavigationButton
+                savingsSection
+                virtualPanelsSection
             }
-            // tool bar for decimal keypad
+            .padding(.bottom, 50)
+            .onAppear {
+                loadDataForMonth(currentDate)
+            }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -41,8 +50,91 @@ struct ActiveDashboardView: View {
             }
         }
     }
-    
-    // MARK: - Allocation Navigation Button View
+
+    // MARK: - Current Month Text
+    private var currentMonthYear: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: currentDate)
+    }
+
+    private func canNavigateToNextMonth() -> Bool {
+        Calendar.current.date(byAdding: .month, value: 1, to: currentDate)! <= Date()
+    }
+
+    // MARK: - Energy Bill Savings Percentage
+    private var calculatedSavingsPercentage: Double {
+        guard let oldBill = Double(energyBillAmount),
+              oldBill > 0,
+              let lastQuarter = Double(lastQuarterSavings) else {
+            return 0
+        }
+        return min(lastQuarter / oldBill, 1.0)
+    }
+
+    // MARK: - Load Firestore Data
+    private func loadDataForMonth(_ date: Date) {
+        currentDate = date
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        let monthKey = formatter.string(from: date)
+
+        let db = Firestore.firestore()
+        db.collection("users").document(uid).collection("energyData").document(monthKey).getDocument { docSnapshot, _ in
+            guard let data = docSnapshot?.data(),
+                  let entries = data["entries"] as? [[String: Any]] else { return }
+
+            activePower = data["activePower"] as? String ?? "0"
+
+            dailyEnergyData = entries.compactMap { dict in
+                guard let kW = dict["kW"] as? Double,
+                      let dayString = dict["dayString"] as? String,
+                      let timestamp = dict["date"] as? Timestamp else { return nil }
+                return DayEnergyData(dayString: dayString, kW: kW, date: timestamp.dateValue())
+            }
+
+            let totalKW = dailyEnergyData.reduce(0) { $0 + $1.kW }
+            totalEnergy = String(format: "%.1f", totalKW)
+            totalCO2Saved = String(format: "%.2f", totalKW * 0.133)
+
+            // First 7 entries as last quarter
+            let firstQuarter = dailyEnergyData.sorted(by: { $0.date < $1.date }).prefix(7)
+            let lastQuarterKW = firstQuarter.reduce(0) { $0 + $1.kW }
+            lastQuarterSavings = String(format: "%.0f", lastQuarterKW * 0.25)
+
+            // Current quarter (based on date segment)
+            let day = Calendar.current.component(.day, from: date)
+            let quarterRange: ClosedRange<Int> = (1...7).contains(day) ? 1...7 : (8...14).contains(day) ? 8...14 : (15...21).contains(day) ? 15...21 : 22...31
+
+            let thisQuarterKW = dailyEnergyData.filter {
+                if let d = Int($0.dayString) {
+                    return quarterRange.contains(d)
+                }
+                return false
+            }.reduce(0) { $0 + $1.kW }
+
+            thisQuarterToDate = String(format: "%.0f", thisQuarterKW * 0.25)
+
+            // Fixed: Use date parsing for totalSavings till selected month
+            db.collection("users").document(uid).collection("energyData").getDocuments { snapshot, _ in
+                let formatter = DateFormatter()
+                formatter.dateFormat = "MMMM yyyy"
+                guard let selectedDate = formatter.date(from: monthKey) else { return }
+
+                let total: Double = snapshot?.documents.reduce(0) { sum, doc in
+                    guard let docDate = formatter.date(from: doc.documentID), docDate <= selectedDate else { return sum }
+                    let kWList = (doc.data()["entries"] as? [[String: Any]])?.compactMap { $0["kW"] as? Double } ?? []
+                    return sum + kWList.reduce(0, +)
+                } ?? 0
+
+                totalSavings = String(format: "%.0f", total * 0.25)
+            }
+        }
+    }
+
+    // MARK: - UI Sections
     private var allocationNavigationButton: some View {
         HStack {
             NavigationLink(destination: AllocationsHomeView()) {
@@ -50,196 +142,133 @@ struct ActiveDashboardView: View {
                     Text("Select allocations")
                         .font(.custom("PoppinsSemiBold", size: 16))
                         .foregroundColor(.white)
-                    
                     Spacer()
-                    
                     Image(systemName: "chevron.right")
                         .foregroundColor(.white)
                 }
                 .padding()
                 .background(Color("AccentColor5"))
                 .cornerRadius(8)
-                Spacer()
             }
+            Spacer()
         }
         .padding(.horizontal)
-        
     }
-    
-    // MARK: - Savings Section Box
+
     private var savingsSection: some View {
         VStack(alignment: .leading, spacing: 25) {
-            // Info Cards
-            infoCards
-            
-            // Savings Data
+            VStack(spacing: 8) {
+                HStack(spacing: 10) {
+                    InfoCard(title: "Active", value: "\(activePower) kW")
+                    InfoCard(title: "Last quarter", value: "$\(lastQuarterSavings)")
+                }
+
+                HStack(spacing: 10) {
+                    InfoCard(title: "Total savings", value: "$\(totalSavings)")
+                    InfoCard(title: "This quarter to date", value: "$\(thisQuarterToDate)")
+                }
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 36)
+
             savingsData
         }
         .frame(maxWidth: 330)
-        .padding(.vertical, 12) // was .padding()
+        .padding(.vertical, 12)
         .padding(.horizontal, 14)
         .background(Color("AccentColor4"))
         .cornerRadius(26)
-        
     }
-    
-    // MARK: - Info Cards
-    private var infoCards: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 10) {
-                InfoCard(title: "Active", value: "\(viewModel.activePower) kW")
-                InfoCard(title: "Last quarter", value: "$\(viewModel.lastQuarterSavings)")
-            }
-            
-            HStack(spacing: 10) {
-                InfoCard(title: "Total savings", value: "$\(viewModel.totalSavings)")
-                InfoCard(title: "This quarter to date", value: "$\(viewModel.currentQuarterSavings)")
-            }
-        }
-        .padding(.vertical, 8)
-        .padding(.horizontal,36)
-    }
-    
-    // MARK: - Savings Data
+
     private var savingsData: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack{
+            HStack {
                 Spacer()
                 Text("Savings")
                     .font(.custom("Poppins-SemiBold", size: 34))
                     .foregroundColor(.white)
-                    .padding(.horizontal)
                 Spacer()
             }
             .padding(.bottom, 20)
-            
+
             HStack {
-                
                 SavingsProgressCircle(percentage: calculatedSavingsPercentage)
                     .padding(.top, 20)
                     .padding(.leading, 20)
-                
+
                 Spacer()
-                
-                HStack {
-                    Spacer().frame(width: 50)
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Last quater")
-                            .font(.custom("Poppins-SemiBold", size: 15))
-                            .foregroundColor(.white)
-                        Spacer()
-                        Text("$\(viewModel.lastQuarterAmount)")
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Last quarter")
+                        .font(.custom("Poppins-SemiBold", size: 15))
+                        .foregroundColor(.white)
+
+                    Text("$\(lastQuarterSavings)")
+                        .font(.custom("Poppins-SemiBold", size: 22))
+                        .foregroundColor(Color("AccentColor2"))
+
+                    Text("Old energy bill")
+                        .font(.custom("Poppins-SemiBold", size: 15))
+                        .foregroundColor(.white)
+
+                    HStack {
+                        Text("$")
                             .font(.custom("Poppins-SemiBold", size: 22))
                             .foregroundColor(Color("AccentColor2"))
-                        
-                        Spacer().padding(.top, 4)
-                        Text("Old energy bill")
-                            .font(.custom("Poppins-SemiBold", size: 15))
-                            .foregroundColor(.white)
-                        Spacer()
-                        HStack {
-                            HStack {
-                                //fix this and fix preview
-                                Text("$")
-                                    .font(.custom("Poppins-SemiBold", size: 22))
-                                    .foregroundColor(Color("AccentColor2"))
-                                TextField("Amount", text: $energyBillAmount)
-                                    .focused($focusedField, equals: .dec)
-                                    .keyboardType(.decimalPad)
-                                    .font(.custom("Poppins-SemiBold", size: 22))
-                                    .foregroundColor(Color("AccentColor2"))
-                                    .frame(width: 92)
-                                Spacer()
-                            }
-                            // Removed .toolbar from here
-                        }
+                        TextField("Amount", text: $energyBillAmount)
+                            .focused($focusedField, equals: .dec)
+                            .keyboardType(.decimalPad)
+                            .font(.custom("Poppins-SemiBold", size: 22))
+                            .foregroundColor(Color("AccentColor2"))
+                            .frame(width: 92)
                     }
                 }
+                .padding(.trailing)
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            //Content under savings graph
-            HStack {
-                Spacer()
-                Rectangle()
-                    .fill(Color("AccentColor2"))
-                    .frame(width: 300, height: 1.5)
-                Spacer()
-            }
-            .padding(.top, 33)
-            .padding(.bottom, 6)
-            
-            Text("To eliminate your Electricity Bill visit our ")
-                .font(.custom("Poppins", size: 13))
-                .foregroundColor(.white)
-            +
-            Text("website")
-                .font(.custom("Poppins", size: 13))
-                .foregroundColor(.white)
-                .underline()
-            +
-            Text(" to update your SolarCloud portfolio.")
-                .font(.custom("Poppins", size: 13))
+
+            Rectangle()
+                .fill(Color("AccentColor2"))
+                .frame(width: 300, height: 1.5)
+                .padding(.top, 33)
+                .padding(.bottom, 6)
+
+            (
+                Text("To eliminate your Electricity Bill visit our ")
+                    .font(.custom("Poppins", size: 13))
+                    .foregroundColor(.white)
+                +
+                Text("website")
+                    .font(.custom("Poppins", size: 13))
+                    .foregroundColor(.white)
+                    .underline()
+                +
+                Text(" to update your SolarCloud portfolio.")
+                    .font(.custom("Poppins", size: 13))
+                    .foregroundColor(.white)
+            )
+            .padding(.horizontal)
         }
-        .foregroundColor(.white)
         .padding(.horizontal)
         .padding(.bottom, 20)
     }
-    
-    //MARK: - savings circle percentage calculation
-    private var calculatedSavingsPercentage: Double {
-        guard let oldBill = Double(energyBillAmount),
-              oldBill > 0,
-              let lastQuarter = Double(viewModel.lastQuarterSavings) else {
-            return 0
-        }
-        return min(lastQuarter / oldBill, 1.0) // Clamp to 1.0 (100%)
-    }
-    
 
-    //MARK: - Savings Progress Circle
-    struct SavingsProgressCircle: View {
-        var percentage: Double // 0...1
-
-        var body: some View {
-            ZStack {
-                Circle()
-                    .stroke(Color("BackgroundColor"), lineWidth: 12)
-                    .frame(width: 100, height: 100)
-                Circle()
-                    .trim(from: 0, to: percentage)
-                    .stroke(Color("AccentColor1"), style: StrokeStyle(lineWidth: 12, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .frame(width: 100, height: 100)
-                    .animation(.easeOut(duration: 1.0), value: percentage)
-                VStack {
-                    Text("\(Int(percentage * 100))%")
-                        .font(.custom("Poppins-SemiBold", size: 22))
-                        .foregroundColor(.white)
-                    Text("saved")
-                        .font(.custom("Poppins-SemiBold", size: 16))
-                        .foregroundColor(.white)
-                }
-            }
-        }
-    }
-    
-    // MARK: - Virtual Panels Section View
     private var virtualPanelsSection: some View {
         VStack(alignment: .leading, spacing: 15) {
-            HStack(alignment: .center) {
+            HStack {
                 Spacer()
                 Text("My virtual panels")
                     .font(.custom("Poppins-SemiBold", size: 34))
                     .foregroundColor(.white)
                 Spacer()
             }
-            
+
             HStack {
-                Button(action: {
-                    // Previous month action - use viewModel.currentDate as reference
-                    if let previousMonth = Calendar.current.date(byAdding: .month, value: -1, to: viewModel.currentDate) {
-                        viewModel.loadDataForMonth(previousMonth)
+                Button {
+                    if let previous = Calendar.current.date(byAdding: .month, value: -1, to: currentDate) {
+                        loadDataForMonth(previous)
                     }
-                }) {
+                } label: {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.white)
                         .frame(width: 36, height: 36)
@@ -247,56 +276,55 @@ struct ActiveDashboardView: View {
                         .clipShape(Circle())
                 }
                 .padding(.leading, 22)
+
                 Spacer()
-                
-                Text(viewModel.currentMonthYear)
+
+                Text(currentMonthYear)
                     .foregroundColor(.white)
                     .font(.custom("Poppins-SemiBold", size: 24))
-                
+
                 Spacer()
-                
-                Button(action: {
-                    let calendar = Calendar.current
-                    if let nextMonth = calendar.date(byAdding: .month, value: 1, to: viewModel.currentDate) {
-                        // Only allow advancing if nextMonth is not in the future
-                        if nextMonth <= Date() {
-                            viewModel.loadDataForMonth(nextMonth)
-                        }
+
+                Button {
+                    if let next = Calendar.current.date(byAdding: .month, value: 1, to: currentDate),
+                       next <= Date() {
+                        loadDataForMonth(next)
                     }
-                }) {
+                } label: {
                     Image(systemName: "chevron.right")
-                        .foregroundColor(viewModel.canNavigateToNextMonth() ? .white : .gray)
+                        .foregroundColor(canNavigateToNextMonth() ? .white : .gray)
                         .frame(width: 36, height: 36)
                         .background(Color("BackgroundColor"))
                         .clipShape(Circle())
                 }
                 .padding(.trailing, 22)
-                .disabled(!viewModel.canNavigateToNextMonth())
+                .disabled(!canNavigateToNextMonth())
             }
-            
+
             HStack {
                 VStack {
                     Text("Active")
                         .font(.custom("Poppins", size: 16))
                         .foregroundColor(.white)
-                    
-                    Text(viewModel.totalEnergy)
+
+                    Text(totalEnergy)
                         .font(.headline)
                         .foregroundColor(Color("AccentColor1"))
-                    
+
                     Image("LineGraphIcon")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 60, height: 24)
                 }
+
                 Spacer()
-                
+
                 Image("CO2Icon")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 60, height: 24)
-                
-                Text(viewModel.totalCO2Saved + " Kg's")
+
+                Text("\(totalCO2Saved) Kg's")
                     .font(.custom("Poppins", size: 16))
                     .foregroundColor(Color("AccentColor1"))
                 +
@@ -304,93 +332,80 @@ struct ActiveDashboardView: View {
                     .font(.custom("Poppins", size: 16))
                     .foregroundColor(.white)
             }
-            
-            energyBarChart
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color("AccentColor4"))
-        .cornerRadius(26)
-        .padding(.horizontal)
-    }
 
-    // MARK: - Energy Bar Chart
-    private var energyBarChart: some View {
-        
-        HStack(alignment: .top, spacing: 0) {
-            // Fixed Y-axis
-            Chart {
-                // Empty content just for the axis
-                ForEach([0], id: \.self) { _ in
-                    BarMark(
-                        x: .value("", ""),
-                        y: .value("", 0)
-                    )
-                    .opacity(0)
-                }
-            }
-            .chartYScale(domain: 0...450)
-            .chartYAxis {
-                AxisMarks(position: .leading, values: .stride(by: 100)) { value in
-                    AxisGridLine()
-                    AxisTick()
-                    AxisValueLabel {
-                        if let kW = value.as(Double.self) {
-                            Text("\(Int(kW))")
-                                .font(.custom("Poppins", size: 14))
-                                .foregroundColor(.white)
-                                .offset(y: -10)
-                        }
-                    }
-                }
-            }
-            .chartXAxis(.hidden)
-            .frame(width: 40, height: 260)
-            .padding(.trailing, 4)
-            
-
-            // Scrollable chart area
-            ScrollView(.horizontal, showsIndicators: false) {
+            // Chart with correct padding and width
+            HStack(alignment: .top, spacing: 0) {
                 Chart {
-                    ForEach(viewModel.dailyEnergyData) { dayData in
-                        BarMark(
-                            x: .value("Day", dayData.dayString),
-                            y: .value("kW", dayData.kW)
-                        )
-                        .foregroundStyle(Color("AccentColor1"))
-                        .annotation(position: .top) {
-                            Text("\(Int(dayData.kW))")
-                                .font(.custom("Poppins", size: 14))
-                                .foregroundColor(.white)
-                        }
+                    ForEach([0], id: \.self) { _ in
+                        BarMark(x: .value("", ""), y: .value("", 0)).opacity(0)
                     }
                 }
                 .chartYScale(domain: 0...450)
-                .chartYAxis(.hidden)
-                .chartXAxis {
-                    AxisMarks(values: .automatic) { value in
+                .chartYAxis {
+                    AxisMarks(position: .leading, values: .stride(by: 100)) { value in
                         AxisGridLine()
                         AxisTick()
                         AxisValueLabel {
-                            if let day = value.as(String.self) {
-                                Text(day)
+                            if let kW = value.as(Double.self) {
+                                Text("\(Int(kW))")
+                                    .font(.custom("Poppins", size: 14))
+                                    .foregroundColor(.white)
+                                    .offset(y: -10)
+                            }
+                        }
+                    }
+                }
+                .chartXAxis(.hidden)
+                .frame(width: 40, height: 260)
+                .padding(.trailing, 4)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    Chart {
+                        ForEach(dailyEnergyData) { dayData in
+                            BarMark(
+                                x: .value("Day", dayData.dayString),
+                                y: .value("kW", dayData.kW)
+                            )
+                            .foregroundStyle(Color("AccentColor1"))
+                            .annotation(position: .top) {
+                                Text("\(Int(dayData.kW))")
                                     .font(.custom("Poppins", size: 14))
                                     .foregroundColor(.white)
                             }
                         }
                     }
+                    .chartYScale(domain: 0...450)
+                    .chartYAxis(.hidden)
+                    .chartXAxis {
+                        AxisMarks(values: .automatic) { value in
+                            AxisGridLine()
+                            AxisTick()
+                            AxisValueLabel {
+                                if let day = value.as(String.self) {
+                                    Text(day)
+                                        .font(.custom("Poppins", size: 14))
+                                        .foregroundColor(.white)
+                                }
+                            }
+                        }
+                    }
+                    .frame(width: CGFloat(dailyEnergyData.count) * 40, height: 260)
                 }
-                .frame(width: CGFloat(viewModel.dailyEnergyData.count) * 40, height: 260)
             }
         }
-        
-    }}
+        .frame(maxWidth: 330)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 14)
+        .background(Color("AccentColor4"))
+        .cornerRadius(26)
+    }
+}
 
-//MARK: - InfoCard Component
+// MARK: - InfoCard
 struct InfoCard: View {
     let title: String
     let value: String
-    
+
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
             Text(title)
@@ -409,6 +424,32 @@ struct InfoCard: View {
     }
 }
 
+// MARK: - SavingsProgressCircle
+struct SavingsProgressCircle: View {
+    var percentage: Double
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color("BackgroundColor"), lineWidth: 12)
+                .frame(width: 100, height: 100)
+            Circle()
+                .trim(from: 0, to: percentage)
+                .stroke(Color("AccentColor1"), style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .frame(width: 100, height: 100)
+                .animation(.easeOut(duration: 1.0), value: percentage)
+            VStack {
+                Text("\(Int(percentage * 100))%")
+                    .font(.custom("Poppins-SemiBold", size: 22))
+                    .foregroundColor(.white)
+                Text("saved")
+                    .font(.custom("Poppins-SemiBold", size: 16))
+                    .foregroundColor(.white)
+            }
+        }
+    }
+}
 #Preview {
-    DashboardView()
+    ActiveDashboardView()
 }

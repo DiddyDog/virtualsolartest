@@ -1,7 +1,9 @@
 import SwiftUI
 
 struct CalculatorView: View {
-    @State private var billAmount: String = "450"
+    var initialBillAmount: String = "450"
+
+    @State private var billAmount: String = ""
 
     var billValue: Double {
         Double(billAmount) ?? 0
@@ -144,6 +146,10 @@ struct CalculatorView: View {
                 .padding()
             }
         }
+        .onAppear {
+            billAmount = initialBillAmount
+        }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
@@ -168,5 +174,5 @@ struct SavingsBox: View {
 }
 
 #Preview {
-    CalculatorView()
+    CalculatorView(initialBillAmount: "450")
 }
