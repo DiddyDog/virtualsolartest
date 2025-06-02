@@ -1,9 +1,13 @@
+
 import SwiftUI
 import Charts
 import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 
+// MARK: - Data Model
+
+/// Represents a single day's energy data entry.
 struct DayEnergyData: Identifiable {
     var id = UUID()
     var dayString: String
@@ -11,6 +15,9 @@ struct DayEnergyData: Identifiable {
     var date: Date
 }
 
+// MARK: - Active Dashboard View
+
+/// Displays the dashboard view with energy statistics, charts, and user savings insights.
 struct ActiveDashboardView: View {
     enum FocusedField {
         case dec
@@ -51,7 +58,8 @@ struct ActiveDashboardView: View {
         }
     }
 
-    // MARK: - Current Month Text
+    // MARK: - Current Month Display
+
     private var currentMonthYear: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
@@ -62,7 +70,6 @@ struct ActiveDashboardView: View {
         Calendar.current.date(byAdding: .month, value: 1, to: currentDate)! <= Date()
     }
 
-    // MARK: - Energy Bill Savings Percentage
     private var calculatedSavingsPercentage: Double {
         guard let oldBill = Double(energyBillAmount),
               oldBill > 0,
@@ -72,7 +79,6 @@ struct ActiveDashboardView: View {
         return min(lastQuarter / oldBill, 1.0)
     }
 
-    // MARK: - Load Firestore Data
     private func loadDataForMonth(_ date: Date) {
         currentDate = date
         guard let uid = Auth.auth().currentUser?.uid else { return }
@@ -99,42 +105,34 @@ struct ActiveDashboardView: View {
             totalEnergy = String(format: "%.1f", totalKW)
             totalCO2Saved = String(format: "%.2f", totalKW * 0.133)
 
-            // First 7 entries as last quarter
             let firstQuarter = dailyEnergyData.sorted(by: { $0.date < $1.date }).prefix(7)
             let lastQuarterKW = firstQuarter.reduce(0) { $0 + $1.kW }
             lastQuarterSavings = String(format: "%.0f", lastQuarterKW * 0.25)
 
-            // Current quarter (based on date segment)
             let day = Calendar.current.component(.day, from: date)
             let quarterRange: ClosedRange<Int> = (1...7).contains(day) ? 1...7 : (8...14).contains(day) ? 8...14 : (15...21).contains(day) ? 15...21 : 22...31
-
             let thisQuarterKW = dailyEnergyData.filter {
                 if let d = Int($0.dayString) {
                     return quarterRange.contains(d)
                 }
                 return false
             }.reduce(0) { $0 + $1.kW }
-
             thisQuarterToDate = String(format: "%.0f", thisQuarterKW * 0.25)
 
-            // Fixed: Use date parsing for totalSavings till selected month
             db.collection("users").document(uid).collection("energyData").getDocuments { snapshot, _ in
-                let formatter = DateFormatter()
-                formatter.dateFormat = "MMMM yyyy"
                 guard let selectedDate = formatter.date(from: monthKey) else { return }
-
                 let total: Double = snapshot?.documents.reduce(0) { sum, doc in
                     guard let docDate = formatter.date(from: doc.documentID), docDate <= selectedDate else { return sum }
                     let kWList = (doc.data()["entries"] as? [[String: Any]])?.compactMap { $0["kW"] as? Double } ?? []
                     return sum + kWList.reduce(0, +)
                 } ?? 0
-
                 totalSavings = String(format: "%.0f", total * 0.25)
             }
         }
     }
 
     // MARK: - UI Sections
+
     private var allocationNavigationButton: some View {
         HStack {
             NavigationLink(destination: AllocationsHomeView()) {
@@ -162,7 +160,6 @@ struct ActiveDashboardView: View {
                     InfoCard(title: "Active", value: "\(activePower) kW")
                     InfoCard(title: "Last quarter", value: "$\(lastQuarterSavings)")
                 }
-
                 HStack(spacing: 10) {
                     InfoCard(title: "Total savings", value: "$\(totalSavings)")
                     InfoCard(title: "This quarter to date", value: "$\(thisQuarterToDate)")
@@ -170,7 +167,6 @@ struct ActiveDashboardView: View {
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 36)
-
             savingsData
         }
         .frame(maxWidth: 330)
@@ -195,22 +191,17 @@ struct ActiveDashboardView: View {
                 SavingsProgressCircle(percentage: calculatedSavingsPercentage)
                     .padding(.top, 20)
                     .padding(.leading, 20)
-
                 Spacer()
-
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Last quarter")
                         .font(.custom("Poppins-SemiBold", size: 15))
                         .foregroundColor(.white)
-
                     Text("$\(lastQuarterSavings)")
                         .font(.custom("Poppins-SemiBold", size: 22))
                         .foregroundColor(Color("AccentColor2"))
-
                     Text("Old energy bill")
                         .font(.custom("Poppins-SemiBold", size: 15))
                         .foregroundColor(.white)
-
                     HStack {
                         Text("$")
                             .font(.custom("Poppins-SemiBold", size: 22))
@@ -306,11 +297,9 @@ struct ActiveDashboardView: View {
                     Text("Active")
                         .font(.custom("Poppins", size: 16))
                         .foregroundColor(.white)
-
                     Text(totalEnergy)
                         .font(.headline)
                         .foregroundColor(Color("AccentColor1"))
-
                     Image("LineGraphIcon")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -333,7 +322,7 @@ struct ActiveDashboardView: View {
                     .foregroundColor(.white)
             }
 
-            // Chart with correct padding and width
+            // Energy chart
             HStack(alignment: .top, spacing: 0) {
                 Chart {
                     ForEach([0], id: \.self) { _ in
@@ -401,7 +390,9 @@ struct ActiveDashboardView: View {
     }
 }
 
-// MARK: - InfoCard
+// MARK: - Info Card
+
+/// A reusable card view displaying a title and corresponding value.
 struct InfoCard: View {
     let title: String
     let value: String
@@ -424,7 +415,9 @@ struct InfoCard: View {
     }
 }
 
-// MARK: - SavingsProgressCircle
+// MARK: - Savings Progress Circle
+
+/// A circular progress indicator representing savings percentage visually.
 struct SavingsProgressCircle: View {
     var percentage: Double
 
@@ -450,6 +443,9 @@ struct SavingsProgressCircle: View {
         }
     }
 }
+
+// MARK: - Preview
+
 #Preview {
     ActiveDashboardView()
 }

@@ -1,3 +1,4 @@
+
 import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
@@ -232,4 +233,3 @@ struct StatementView: View {
         }
     }
 }
-

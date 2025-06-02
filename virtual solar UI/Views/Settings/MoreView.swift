@@ -1,7 +1,9 @@
 import SwiftUI
 import FirebaseAuth
 
+// MARK: - MoreView
 struct MoreView: View {
+    // Enum defining different settings options
     enum SettingOption: String, CaseIterable, Identifiable {
         case myDetails = "My Details"
         case statement = "Statement"
@@ -15,6 +17,7 @@ struct MoreView: View {
         var id: String { self.rawValue }
     }
 
+    // MARK: - State Variables
     @State private var selectedOption: SettingOption?
     @State private var shouldNavigateToLogin = false
     @State private var showPopup = false
@@ -25,17 +28,18 @@ struct MoreView: View {
             ZStack {
                 Color("BackgroundColor").ignoresSafeArea()
 
+                // MARK: - Scrollable Content
                 ScrollView {
                     VStack(spacing: 24) {
+                        // App logo
                         Image("SolarCloudLogo")
                             .resizable()
                             .frame(width: 28.86, height: 50.0)
                             .padding(.top)
 
+                        // Settings Header
                         HStack {
                             Image("UserIcon")
-                                .foregroundColor(Color("AccentColor1"))
-                                .fixedSize()
                                 .frame(width: 8, height: 8)
                                 .padding()
                             Text("Settings")
@@ -46,8 +50,10 @@ struct MoreView: View {
                         }
                         .padding(.horizontal)
 
+                        // MARK: - Settings Options List
                         VStack(spacing: 16) {
                             ForEach(SettingOption.allCases) { option in
+                                // Background NavigationLink for programmatic navigation
                                 NavigationLink(
                                     destination: destinationView(for: option),
                                     tag: option,
@@ -56,6 +62,7 @@ struct MoreView: View {
                                     EmptyView()
                                 }
 
+                                // Visible interactive button
                                 Button(action: {
                                     handleOptionTap(option)
                                 }) {
@@ -65,7 +72,7 @@ struct MoreView: View {
                                             .fontWeight(.semibold)
                                         Spacer()
                                         Image(systemName: "chevron.right")
-                                            .foregroundColor(.white.opacity(1))
+                                            .foregroundColor(.white)
                                     }
                                     .padding()
                                     .background(Color.white.opacity(0.06))
@@ -78,13 +85,14 @@ struct MoreView: View {
                         .cornerRadius(24)
                         .padding(.horizontal)
 
+                        // Navigation trigger for login screen after logout
                         NavigationLink(destination: LoginView(), isActive: $shouldNavigateToLogin) {
                             EmptyView()
                         }
                     }
                 }
 
-                // ✅ Success Popup
+                // MARK: - Success Popup Overlay
                 if showPopup {
                     VStack {
                         Spacer()
@@ -112,6 +120,7 @@ struct MoreView: View {
                         Spacer()
                     }
                     .onAppear {
+                        // Auto-dismiss popup after 2 seconds
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             withAnimation {
                                 showPopup = false
@@ -123,7 +132,7 @@ struct MoreView: View {
         }
     }
 
-    // MARK: - Navigation destinations
+    // MARK: - Returns the destination view based on selected setting option
     @ViewBuilder
     func destinationView(for option: SettingOption) -> some View {
         switch option {
@@ -142,11 +151,11 @@ struct MoreView: View {
         case .contactUs:
             ContactUsView()
         case .logout:
-            EmptyView()
+            EmptyView() // Logout handled separately
         }
     }
 
-    // MARK: - Action Handler
+    // MARK: - Handles user taps on setting options
     func handleOptionTap(_ option: SettingOption) {
         if option == .logout {
             do {

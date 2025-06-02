@@ -1,8 +1,10 @@
+
 import SwiftUI
 
 struct LegalDocumentView: View {
-    @Environment(\.dismiss) var dismiss  // ✅ to dismiss the screen
+    @Environment(\.dismiss) var dismiss  // Used to dismiss the current view (go back)
 
+    // List of legal document titles
     let items = [
         "Balance receipt 21/08/2021",
         "Deposit 08/08/2021",
@@ -15,42 +17,42 @@ struct LegalDocumentView: View {
     ]
 
     var body: some View {
-        NavigationStack {  // ✅ Updated to NavigationStack
+        NavigationStack {  // Modern navigation container replacing NavigationView
             ZStack {
-                Color("BackgroundColor").ignoresSafeArea()
+                Color("BackgroundColor").ignoresSafeArea()  // Background color
 
                 VStack(spacing: 20) {
-                    // Logo
+                    // App Logo at the top center
                     Image("SolarCloudLogo")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 40, height: 60)
                         .padding(.bottom, 10)
 
-                    // Custom Back + Title
+                    // Custom back button and page title
                     HStack {
                         Button(action: {
-                            dismiss()  // ✅ now it will properly go back
+                            dismiss()  // Trigger dismissal of current screen
                         }) {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(Color("AccentColor2"))
                                 .font(.title2)
                         }
-                        
+
                         Text("Paperwork")
                             .foregroundColor(.white)
                             .font(.title2.bold())
-                        
+
                         Spacer()
                     }
                     .padding(.horizontal)
 
-                    // Paperwork List
+                    // Scrollable list of paperwork buttons
                     ScrollView {
                         VStack(spacing: 15) {
                             ForEach(items, id: \.self) { item in
                                 Button(action: {
-                                    print("Tapped on \(item)")
+                                    print("Tapped on \(item)")  // Placeholder for future document viewer
                                 }) {
                                     Text(item)
                                         .foregroundColor(.black)
@@ -62,7 +64,7 @@ struct LegalDocumentView: View {
                                 }
                             }
 
-                            // Scroll For More Button
+                            // Scroll For More Button (placeholder)
                             Button(action: {
                                 print("Scroll for more tapped")
                             }) {
@@ -78,10 +80,10 @@ struct LegalDocumentView: View {
                         .padding()
                     }
 
-                    Spacer()
+                    Spacer()  // Pushes content to the top
                 }
             }
-            .navigationBarBackButtonHidden(true)  // ✅ hides default system back button
+            .navigationBarBackButtonHidden(true)  // Hides the default back button
         }
     }
 }

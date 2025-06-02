@@ -10,22 +10,18 @@ struct TrackerView: View {
     @State private var selectedTimeFrameFilter: String? = "All Times"
     @State private var expandedDropdownID: String? = nil
 
-    // Dropdown options for information and time frame filters
+    // Dropdown options for filters
     private let informationFilters = [
-        "All Info",
-        "Information",
-        "Disbursement",
-        "Reminders",
-        "Require Actions",
-        "Payments"
+        "All Info", "Information", "Disbursement", "Reminders", "Require Actions", "Payments"
     ]
-    private let timeFrameFilters = ["All Times", "Last Month", "Last 3 Months", "Last Year"]
+    private let timeFrameFilters = [
+        "All Times", "Last Month", "Last 3 Months", "Last Year"
+    ]
 
-    // Filters events based on selected filters
+    // Filters events based on selected dropdown options
     private var filteredEvents: [TimelineEvent] {
         var filtered = events
 
-        // Filter by information type
         if let infoFilter = selectedInformationFilter, infoFilter != "All Info" {
             switch infoFilter {
             case "Disbursement":
@@ -41,7 +37,6 @@ struct TrackerView: View {
             }
         }
 
-        // Filter by time frame
         if let timeFilter = selectedTimeFrameFilter {
             let now = Date()
             switch timeFilter {
@@ -62,10 +57,11 @@ struct TrackerView: View {
         NavigationStack {
             ZStack {
                 Color("BackgroundColor").ignoresSafeArea()
-                VStack{
+
+                VStack {
                     ScrollView {
                         VStack(spacing: 16) {
-                            // Header with logo
+                            // Logo Header
                             HStack {
                                 Spacer()
                                 Image("SolarCloudLogo")
@@ -74,11 +70,11 @@ struct TrackerView: View {
                                 Spacer()
                             }
                             .padding(.top, 1)
+
+                            // Title and kW status
                             VStack(spacing: 4) {
                                 HStack(spacing: 8) {
                                     Image("ListIcon")
-                                        .foregroundColor(Color("AccentColor1"))
-                                        .fixedSize()
                                         .frame(width: 8, height: 8)
                                         .padding()
                                     Text("Tracker")
@@ -88,8 +84,8 @@ struct TrackerView: View {
                                     Spacer()
                                 }
                                 .padding(.bottom, 20)
-                                
-                                // Active/Pending kW section
+
+                                // Active & Pending Section
                                 HStack {
                                     Spacer()
                                     VStack(spacing: 2) {
@@ -111,6 +107,7 @@ struct TrackerView: View {
                                     }
                                     Spacer()
                                 }
+
                                 Divider()
                                     .frame(height: 1)
                                     .background(Color.gray)
@@ -118,7 +115,7 @@ struct TrackerView: View {
                                     .padding(.horizontal, 120)
                             }
 
-                            // Dropdown filter menus
+                            // Dropdown Filters
                             HStack(spacing: 8) {
                                 DropdownMenu(
                                     options: informationFilters,
@@ -144,7 +141,7 @@ struct TrackerView: View {
                             .padding(.horizontal)
                             .fixedSize(horizontal: false, vertical: true)
 
-                            // Timeline of filtered events
+                            // Timeline View
                             TimelineView(events: filteredEvents)
                                 .padding(.top, 1)
                                 .padding(.horizontal, 1)

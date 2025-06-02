@@ -1,10 +1,11 @@
 import SwiftUI
 
+/// View allowing the user to select an account to allocate earnings from their virtual solar panels.
 struct AllocationsView: View {
+    
+    // MARK: - Environment & Navigation
     @Environment(\.dismiss) var dismiss
     @State private var showOptions = false
-
-    // Navigation states
     @State private var goToBank = false
     @State private var goToEnergy = false
     @State private var goToPaypal = false
@@ -12,10 +13,12 @@ struct AllocationsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                // Background color
                 Color("BackgroundColor").ignoresSafeArea()
 
                 VStack(spacing: 20) {
-                    // Centered Logo
+                    
+                    // MARK: - Header Logo
                     HStack {
                         Spacer()
                         Image("SolarCloudLogo")
@@ -24,11 +27,9 @@ struct AllocationsView: View {
                         Spacer()
                     }
 
-                    // Title + Back Button
+                    // MARK: - Title & Back Button
                     HStack(spacing: 10) {
-                        Button(action: {
-                            dismiss()
-                        }) {
+                        Button(action: { dismiss() }) {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(Color("AccentColor2"))
                         }
@@ -42,20 +43,20 @@ struct AllocationsView: View {
                     }
                     .padding(.horizontal)
 
-                    // Subheading
+                    // MARK: - Description
                     Text("Select an account where you wish the money from your virtual solar to magically appear")
                         .font(.subheadline)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
 
-                    // YOU HAVE
+                    // MARK: - Panel Ownership Label
                     Text("You have")
                         .foregroundColor(.white)
                         .font(.title3)
                         .bold()
 
-                    // Pending
+                    // MARK: - Pending Info
                     VStack(spacing: 4) {
                         Text("almost there")
                             .foregroundColor(.gray)
@@ -76,11 +77,12 @@ struct AllocationsView: View {
                     }
                     .padding(.horizontal)
 
+                    // Divider
                     Divider()
                         .overlay(Color("AccentColor2"))
                         .frame(width: 230)
 
-                    // Active
+                    // MARK: - Active Info
                     VStack(spacing: 4) {
                         Text("to allocate")
                             .foregroundColor(.white)
@@ -101,7 +103,7 @@ struct AllocationsView: View {
                     }
                     .padding(.horizontal)
 
-                    // Dropdown button
+                    // MARK: - Dropdown Toggle
                     Button {
                         withAnimation {
                             showOptions.toggle()
@@ -123,7 +125,7 @@ struct AllocationsView: View {
                     .padding(.top, 10)
                     .padding(.horizontal)
 
-                    // Dropdown Options
+                    // MARK: - Dropdown Options
                     if showOptions {
                         VStack(spacing: 0) {
                             Button(action: {
@@ -135,6 +137,7 @@ struct AllocationsView: View {
                                     .padding(.vertical, 14)
                                     .foregroundColor(.white)
                             }
+
                             Divider().background(Color("AccentColor2"))
 
                             Button(action: {
@@ -146,6 +149,7 @@ struct AllocationsView: View {
                                     .padding(.vertical, 14)
                                     .foregroundColor(Color("AccentColor2"))
                             }
+
                             Divider().background(Color("AccentColor2"))
 
                             Button(action: {
@@ -170,7 +174,7 @@ struct AllocationsView: View {
                 .padding(.top)
             }
 
-            // ✅ Navigation destinations
+            // MARK: - Navigation Links
             .navigationDestination(isPresented: $goToBank) {
                 EFTView()
             }
@@ -186,6 +190,7 @@ struct AllocationsView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     AllocationsView()
 }

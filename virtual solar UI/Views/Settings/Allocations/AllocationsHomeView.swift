@@ -3,29 +3,36 @@ import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 
+/// Data model for an individual solar panel allocation
 struct AllocationItem: Identifiable {
     let id: String
     let nickname: String
     let allocatedPanels: Int
     let kilowatt: Double
-    let source: String // energyBills, paypalAllocations, bankAccounts
+    let source: String // Indicates the source collection: energyBills, paypalAllocations, bankAccounts
 }
 
+/// Main view to display and manage user panel allocations
 struct AllocationsHomeView: View {
+    
+    // MARK: - Environment & Navigation
     @Environment(\.dismiss) var dismiss
+    @State private var navigateToAddMore = false
+
+    // MARK: - Data
     @State private var allocations: [AllocationItem] = []
     @State private var totalAllocated = 0
     @State private var totalLeft = 6
-    @State private var navigateToAddMore = false
+    let totalPanels = 6
 
+    // MARK: - Deletion State
     @State private var selectedToDelete: AllocationItem?
     @State private var showDeleteAlert = false
-
-    var totalPanels = 6
 
     var body: some View {
         NavigationStack {
             List {
+                // MARK: - Header Section
                 Section {
                     VStack(spacing: 20) {
                         HStack {
@@ -38,9 +45,7 @@ struct AllocationsHomeView: View {
                         .padding(.top)
 
                         HStack(spacing: 10) {
-                            Button(action: {
-                                dismiss()
-                            }) {
+                            Button(action: { dismiss() }) {
                                 Image(systemName: "chevron.left")
                                     .foregroundColor(Color("AccentColor2"))
                             }
@@ -65,23 +70,24 @@ struct AllocationsHomeView: View {
                     .listRowBackground(Color("BackgroundColor"))
                 }
 
+                // MARK: - Allocation List
                 ForEach(allocations) { allocation in
                     VStack(alignment: .leading, spacing: 12) {
+                        // User Info
                         HStack {
                             Spacer()
                             VStack(spacing: 4) {
                                 Text(allocation.nickname)
                                     .font(.headline)
                                     .foregroundColor(Color("AccentColor2"))
-                                    .multilineTextAlignment(.center)
                                 Text("\(allocation.allocatedPanels) panels allocated")
                                     .font(.caption)
                                     .foregroundColor(.gray)
-                                    .multilineTextAlignment(.center)
                             }
                             Spacer()
                         }
 
+                        // Payout Info
                         HStack {
                             Spacer()
                             VStack(spacing: 4) {
@@ -112,6 +118,7 @@ struct AllocationsHomeView: View {
                     .listRowBackground(Color("BackgroundColor"))
                 }
 
+                // MARK: - Add/Buy More Panels
                 Section {
                     Button(action: {
                         if totalLeft > 0 {
@@ -149,6 +156,7 @@ struct AllocationsHomeView: View {
         }
     }
 
+    // MARK: - Allocation Stat Card
     @ViewBuilder
     func panelInfo(title: String, count: Int) -> some View {
         VStack {
@@ -169,6 +177,7 @@ struct AllocationsHomeView: View {
         }
     }
 
+    // MARK: - Payout Detail Box
     @ViewBuilder
     func payoutBox(label: String, amount: String) -> some View {
         VStack {
@@ -180,6 +189,7 @@ struct AllocationsHomeView: View {
         }
     }
 
+    // MARK: - Fetch All Allocations from Firestore
     func fetchAllocations() {
         allocations = []
         totalAllocated = 0
@@ -188,64 +198,27 @@ struct AllocationsHomeView: View {
         let db = Firestore.firestore()
         let group = DispatchGroup()
 
-        // energyBills
-        group.enter()
-        db.collection("users").document(uid).collection("energyBills").getDocuments { snapshot, _ in
-            if let documents = snapshot?.documents {
-                for doc in documents {
-                    let data = doc.data()
-                    let item = AllocationItem(
-                        id: doc.documentID,
-                        nickname: data["nickname"] as? String ?? "",
-                        allocatedPanels: data["allocatedPanels"] as? Int ?? 0,
-                        kilowatt: data["kilowatt"] as? Double ?? 0.0,
-                        source: "energyBills"
-                    )
-                    allocations.append(item)
-                    totalAllocated += item.allocatedPanels
-                }
-            }
-            group.leave()
-        }
+        let sources = ["energyBills", "paypalAllocations", "bankAccounts"]
 
-        // paypalAllocations
-        group.enter()
-        db.collection("users").document(uid).collection("paypalAllocations").getDocuments { snapshot, _ in
-            if let documents = snapshot?.documents {
-                for doc in documents {
-                    let data = doc.data()
-                    let item = AllocationItem(
-                        id: doc.documentID,
-                        nickname: data["nickname"] as? String ?? "",
-                        allocatedPanels: data["allocatedPanels"] as? Int ?? 0,
-                        kilowatt: data["kilowatt"] as? Double ?? 0.0,
-                        source: "paypalAllocations"
-                    )
-                    allocations.append(item)
-                    totalAllocated += item.allocatedPanels
+        for source in sources {
+            group.enter()
+            db.collection("users").document(uid).collection(source).getDocuments { snapshot, _ in
+                if let documents = snapshot?.documents {
+                    for doc in documents {
+                        let data = doc.data()
+                        let item = AllocationItem(
+                            id: doc.documentID,
+                            nickname: data["nickname"] as? String ?? "",
+                            allocatedPanels: data["allocatedPanels"] as? Int ?? 0,
+                            kilowatt: data["kilowatt"] as? Double ?? 0.0,
+                            source: source
+                        )
+                        allocations.append(item)
+                        totalAllocated += item.allocatedPanels
+                    }
                 }
+                group.leave()
             }
-            group.leave()
-        }
-
-        // bankAccounts
-        group.enter()
-        db.collection("users").document(uid).collection("bankAccounts").getDocuments { snapshot, _ in
-            if let documents = snapshot?.documents {
-                for doc in documents {
-                    let data = doc.data()
-                    let item = AllocationItem(
-                        id: doc.documentID,
-                        nickname: data["nickname"] as? String ?? "",
-                        allocatedPanels: data["allocatedPanels"] as? Int ?? 0,
-                        kilowatt: data["kilowatt"] as? Double ?? 0.0,
-                        source: "bankAccounts"
-                    )
-                    allocations.append(item)
-                    totalAllocated += item.allocatedPanels
-                }
-            }
-            group.leave()
         }
 
         group.notify(queue: .main) {
@@ -253,6 +226,7 @@ struct AllocationsHomeView: View {
         }
     }
 
+    // MARK: - Delete an Allocation from Firestore
     func deleteAllocation(_ allocation: AllocationItem) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let db = Firestore.firestore()
@@ -273,6 +247,7 @@ struct AllocationsHomeView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     AllocationsHomeView()
 }

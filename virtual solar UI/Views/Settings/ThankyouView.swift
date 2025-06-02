@@ -8,11 +8,13 @@ struct ThankyouView: View {
             VStack(spacing: 30) {
                 Spacer()
 
+                // Logo
                 Image("SolarCloudLogo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 50, height: 50)
 
+                // Thank you message
                 VStack(spacing: 10) {
                     Text("Thank you,")
                     Text("your message has been")
@@ -29,6 +31,7 @@ struct ThankyouView: View {
 
                 Spacer()
 
+                // Return to Dashboard button
                 Button(action: {
                     goToDashboard = true
                 }) {
@@ -55,6 +58,7 @@ struct ThankyouView: View {
         }
     }
 }
+
 #Preview {
     ThankyouView()
 }

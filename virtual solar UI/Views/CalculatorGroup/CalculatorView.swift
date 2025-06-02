@@ -1,18 +1,25 @@
 import SwiftUI
 
+/// View to calculate and display user's estimated solar savings based on their electricity bill.
 struct CalculatorView: View {
+    
+    /// The initial default bill amount shown when the view appears.
     var initialBillAmount: String = "450"
 
+    /// User-entered bill amount.
     @State private var billAmount: String = ""
 
+    /// Computed numeric value of the user's electricity bill.
     var billValue: Double {
         Double(billAmount) ?? 0
     }
 
+    /// Fixed monthly solar payout value (this would be dynamic in a real implementation).
     var solarPayout: Double {
         250
     }
 
+    /// Percentage of the bill that can be saved using solar payout.
     var savingPercent: Double {
         guard billValue > 0 else { return 0 }
         return min(solarPayout / billValue, 1.0)
@@ -24,7 +31,8 @@ struct CalculatorView: View {
 
             ScrollView {
                 VStack(spacing: 24) {
-                    // Logo & Title
+
+                    // MARK: - Logo and Header
                     VStack(spacing: 8) {
                         Image("SolarCloudLogo")
                             .resizable()
@@ -45,7 +53,7 @@ struct CalculatorView: View {
                         }
                     }
 
-                    // Input Card
+                    // MARK: - Input Card
                     VStack(spacing: 12) {
                         Text("Find out your solar savings")
                             .font(.title3)
@@ -61,20 +69,23 @@ struct CalculatorView: View {
                             .background(Color("CardBackgroundColor"))
                             .cornerRadius(12)
                             .foregroundColor(.white)
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.2)))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.2))
+                            )
                     }
                     .padding()
                     .background(Color.black.opacity(0.4))
                     .cornerRadius(20)
 
-                    // Solar Saving Info
+                    // MARK: - Static Saving Info
                     Text("Solar saving\n$250/month*")
                         .font(.title2)
                         .bold()
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
 
-                    // Savings Grid
+                    // MARK: - Past Savings Grid
                     LazyVGrid(columns: [GridItem(), GridItem()], spacing: 16) {
                         SavingsBox(label: "This month", amount: "$234")
                         SavingsBox(label: "Last month", amount: "$234")
@@ -82,7 +93,7 @@ struct CalculatorView: View {
                         SavingsBox(label: "Last 6 months", amount: "$234")
                     }
 
-                    // Chart + Summary
+                    // MARK: - Circular Chart and Summary Info
                     HStack(alignment: .center, spacing: 24) {
                         ZStack {
                             Circle()
@@ -124,7 +135,7 @@ struct CalculatorView: View {
                         .background(Color.yellow.opacity(0.5))
                         .padding(.horizontal)
 
-                    // Disclaimer
+                    // MARK: - Disclaimer and Footer Note
                     VStack(spacing: 6) {
                         (
                             Text("To eliminate your Electricity Bill visit our ")
@@ -147,12 +158,14 @@ struct CalculatorView: View {
             }
         }
         .onAppear {
+            // Set the initial bill amount when the view loads.
             billAmount = initialBillAmount
         }
         .navigationBarBackButtonHidden(true)
     }
 }
 
+/// Reusable UI component to display a single savings box.
 struct SavingsBox: View {
     var label: String
     var amount: String

@@ -1,3 +1,11 @@
+//
+//  PaypalView.swift
+//  Virtual Solar App
+//
+//  Created by Abubakar Abbas
+//  Description: View for allocating PayPal account disbursements from virtual solar panel earnings.
+//
+
 import SwiftUI
 import Firebase
 import FirebaseFirestore
@@ -6,14 +14,17 @@ import FirebaseAuth
 struct PaypalView: View {
     @Environment(\.dismiss) var dismiss
 
+    // State variables to manage panel allocation
     @State private var allocatedPanels = 0
     @State private var leftPanels = 6
     @State private var totalPanels = 6
-
     @State private var selectedPanels = 1
+
+    // PayPal-specific inputs
     @State private var email = ""
     @State private var nickname = ""
 
+    // Error handling for form fields
     @State private var emailError = false
     @State private var nicknameError = false
 
@@ -31,7 +42,7 @@ struct PaypalView: View {
                     Spacer()
                 }
 
-                // Title + Back
+                // Title and Back Button
                 HStack(spacing: 10) {
                     Button { dismiss() } label: {
                         Image(systemName: "chevron.left")
@@ -47,14 +58,14 @@ struct PaypalView: View {
                 }
                 .padding(.horizontal)
 
-                // Description
+                // Info message
                 Text("Enter your Paypal email where your wish to see your disbursements appear")
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
 
-                // Allocated Panels
+                // Display of currently allocated and left panels
                 HStack {
                     Spacer()
                     VStack {
@@ -91,7 +102,7 @@ struct PaypalView: View {
                     Spacer()
                 }
 
-                // Panel Selector
+                // Panel quantity selector
                 VStack(spacing: 4) {
                     Text("Panels")
                         .foregroundColor(.white)
@@ -125,7 +136,7 @@ struct PaypalView: View {
                     .cornerRadius(12)
                 }
 
-                // Fields
+                // Email input field with validation
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Paypal email")
                         .font(.caption)
@@ -144,6 +155,7 @@ struct PaypalView: View {
                 }
                 .padding(.horizontal)
 
+                // Nickname input field with validation
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Nickname")
                         .font(.caption)
@@ -162,7 +174,7 @@ struct PaypalView: View {
                 }
                 .padding(.horizontal)
 
-                // Add Button
+                // Submit button
                 Button(action: handleAdd) {
                     Text("Add")
                         .fontWeight(.bold)
@@ -182,6 +194,7 @@ struct PaypalView: View {
         .navigationBarBackButtonHidden(true)
     }
 
+    // Validates input fields and submits to Firestore
     func handleAdd() {
         emailError = email.trimmingCharacters(in: .whitespaces).isEmpty
         nicknameError = nickname.trimmingCharacters(in: .whitespaces).isEmpty
@@ -209,12 +222,14 @@ struct PaypalView: View {
             }
     }
 
+    // Fetches current allocation data across all payout types
     func fetchAllocations() {
         allocatedPanels = 0
         guard let uid = Auth.auth().currentUser?.uid else { return }
         let db = Firestore.firestore()
         let group = DispatchGroup()
 
+        // Energy bills
         group.enter()
         db.collection("users").document(uid).collection("energyBills").getDocuments { snapshot, error in
             if let docs = snapshot?.documents {
@@ -225,6 +240,7 @@ struct PaypalView: View {
             group.leave()
         }
 
+        // PayPal
         group.enter()
         db.collection("users").document(uid).collection("paypalAllocations").getDocuments { snapshot, error in
             if let docs = snapshot?.documents {
@@ -235,6 +251,7 @@ struct PaypalView: View {
             group.leave()
         }
 
+        // Bank accounts
         group.enter()
         db.collection("users").document(uid).collection("bankAccounts").getDocuments { snapshot, error in
             if let docs = snapshot?.documents {
@@ -249,7 +266,4 @@ struct PaypalView: View {
             leftPanels = max(0, totalPanels - allocatedPanels)
         }
     }
-}
-#Preview {
-    PaypalView()
 }

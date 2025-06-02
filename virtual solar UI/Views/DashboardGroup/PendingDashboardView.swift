@@ -2,17 +2,23 @@ import SwiftUI
 import Firebase
 import FirebaseFirestore
 
+/// View that shows the pending panel state and allows users to calculate their potential solar savings.
 struct PendingDashboardView: View {
+    
+    /// User's electricity bill input.
     @State private var billAmount: String = ""
+    
+    /// Controls navigation to the calculator screen.
     @State private var navigateToCalculator = false
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 30) {
-                // No pending info card
+
+                // MARK: - Info Card: No pending allocations
                 PendingInfoCard()
 
-                // Calculator Section
+                // MARK: - Calculator Section
                 VStack(alignment: .leading, spacing: 20) {
                     HStack(spacing: 10) {
                         Image(systemName: "list.bullet.rectangle")
@@ -31,6 +37,7 @@ struct PendingDashboardView: View {
                         Text("Enter in your Electricity Bill")
                             .foregroundColor(.white)
 
+                        // User input for electricity bill
                         TextField("$...", text: $billAmount)
                             .keyboardType(.numberPad)
                             .padding()
@@ -38,6 +45,7 @@ struct PendingDashboardView: View {
                             .foregroundColor(.white)
                             .cornerRadius(10)
 
+                        // Hidden NavigationLink triggered by `navigateToCalculator`
                         NavigationLink(
                             destination: CalculatorView(initialBillAmount: billAmount),
                             isActive: $navigateToCalculator
@@ -45,7 +53,7 @@ struct PendingDashboardView: View {
                             EmptyView()
                         }
 
-
+                        // Calculate button
                         Button(action: {
                             navigateToCalculator = true
                         }) {
@@ -72,6 +80,9 @@ struct PendingDashboardView: View {
     }
 }
 
+// MARK: - Reusable Tab Button Component
+
+/// A styled toggle button for switching views or tabs.
 struct TabButton: View {
     var title: String
     var isSelected: Bool
@@ -94,6 +105,9 @@ struct TabButton: View {
     }
 }
 
+// MARK: - Pending Info Card
+
+/// A view that informs the user they have no pending panels.
 struct PendingInfoCard: View {
     var body: some View {
         VStack(spacing: 12) {
@@ -112,7 +126,7 @@ struct PendingInfoCard: View {
             .foregroundColor(.white.opacity(0.8))
 
             Button(action: {
-                // Add action if needed
+                // Add action if needed (e.g., open URL)
             }) {
                 Text("Take me there")
                     .foregroundColor(.black)
@@ -132,6 +146,9 @@ struct PendingInfoCard: View {
         .padding(.horizontal)
     }
 }
-#Preview{
+
+// MARK: - Preview
+
+#Preview {
     PendingDashboardView()
 }

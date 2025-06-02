@@ -1,12 +1,14 @@
 import SwiftUI
 import FirebaseFirestore
 
+// Model to represent each FAQ item
 struct FAQItem: Identifiable {
     let id: String
     let question: String
     let answer: String
     var isExpanded: Bool = false
 
+    // Custom initializer for FAQItem
     init(id: String, question: String, answer: String, isExpanded: Bool = false) {
         self.id = id
         self.question = question
@@ -14,6 +16,7 @@ struct FAQItem: Identifiable {
         self.isExpanded = isExpanded
     }
 
+    // Initializer to parse data from Firestore dictionary
     init(from dict: [String: Any]) {
         self.id = dict["id"] as? String ?? UUID().uuidString
         self.question = dict["question"] as? String ?? "Unknown question"
@@ -22,9 +25,10 @@ struct FAQItem: Identifiable {
     }
 }
 
+// Main view for displaying FAQ content
 struct FAQView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var faqs: [FAQItem] = []
+    @State private var faqs: [FAQItem] = [] // State variable to store FAQs
 
     var body: some View {
         NavigationStack {
@@ -32,7 +36,7 @@ struct FAQView: View {
                 Color("BackgroundColor").ignoresSafeArea()
 
                 VStack(spacing: 20) {
-                    // ✅ Logo
+                    // Logo
                     HStack {
                         Spacer()
                         Image("SolarCloudLogo")
@@ -43,7 +47,7 @@ struct FAQView: View {
                     }
                     .padding(.top)
 
-                    // ✅ Back + Title
+                    // Back Button and Page Title
                     HStack(spacing: 10) {
                         Button { dismiss() } label: {
                             Image(systemName: "chevron.left")
@@ -60,11 +64,11 @@ struct FAQView: View {
                     }
                     .padding(.horizontal)
 
-                    // ✅ FAQ Cards
+                    // FAQ Cards in ScrollView
                     ScrollView {
                         VStack(spacing: 16) {
                             ForEach(faqs.indices, id: \.self) { index in
-                                FAQCard(faq: $faqs[index])
+                                FAQCard(faq: $faqs[index]) // Pass binding for state update
                             }
                         }
                         .padding(.horizontal)
@@ -73,13 +77,13 @@ struct FAQView: View {
                 }
             }
             .onAppear {
-                fetchFAQsFromFirestore()
+                fetchFAQsFromFirestore() // Load FAQs from Firestore
             }
             .navigationBarBackButtonHidden(true)
         }
     }
 
-    // 🔥 Fetch from Firestore
+    // Function to fetch FAQ data from Firestore
     func fetchFAQsFromFirestore() {
         let db = Firestore.firestore()
         db.collection("faq").getDocuments { snapshot, error in
@@ -90,6 +94,7 @@ struct FAQView: View {
 
             guard let docs = snapshot?.documents else { return }
 
+            // Parse documents into FAQItem models
             self.faqs = docs.map { doc in
                 FAQItem(from: doc.data())
             }
@@ -97,6 +102,7 @@ struct FAQView: View {
     }
 }
 
+// Reusable card component for displaying a single FAQ
 struct FAQCard: View {
     @Binding var faq: FAQItem
 
@@ -111,11 +117,12 @@ struct FAQCard: View {
                     .foregroundColor(.white)
                     .onTapGesture {
                         withAnimation {
-                            faq.isExpanded.toggle()
+                            faq.isExpanded.toggle() // Expand/collapse logic
                         }
                     }
             }
 
+            // Display answer if expanded
             if faq.isExpanded {
                 Text(faq.answer)
                     .foregroundColor(.white)

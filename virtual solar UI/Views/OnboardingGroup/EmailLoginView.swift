@@ -2,17 +2,27 @@ import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
 
+/// View that allows users to log in with their email and password.
+/// On successful login, checks whether 2FA has been completed.
 struct EmailLoginView: View {
+    
+    // MARK: - User Input
     @State private var email = ""
     @State private var password = ""
+
+    // MARK: - Error States
     @State private var wrongUsername = 0
     @State private var wrongPassword = 0
+
+    // MARK: - Navigation
     @State private var is2FADone = false
     @State private var navigateToProfileSetup = false
 
+    // MARK: - Environment
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var appState: AppState
 
+    // MARK: - Focus States
     @FocusState private var isEmailFocused: Bool
     @FocusState private var isPasswordFocused: Bool
 
@@ -22,6 +32,7 @@ struct EmailLoginView: View {
                 Color("BackgroundColor").ignoresSafeArea()
 
                 VStack {
+                    // MARK: - Logo and Title
                     Image("SolarCloudLogo")
                     Image("SolarCloudName")
 
@@ -31,6 +42,7 @@ struct EmailLoginView: View {
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 100)
 
+                    // MARK: - Email and Password Input Fields
                     Group {
                         Text("Email Address")
                             .foregroundColor(.gray)
@@ -71,6 +83,7 @@ struct EmailLoginView: View {
                             .focused($isPasswordFocused)
                     }
 
+                    // MARK: - Login Button
                     Button(action: {
                         print("🔐 Login button tapped – starting authentication")
                         authenticateUser()
@@ -87,13 +100,14 @@ struct EmailLoginView: View {
                     }
                     .padding(.top, 30)
 
+                    // MARK: - Error Message
                     if wrongUsername > 0 || wrongPassword > 0 {
                         Text("Incorrect Email or Password")
                             .foregroundColor(.red)
                             .font(Font.custom("Poppins", size: 16))
                     }
 
-                    // Navigate to ProfileSetupView if 2FA is not complete
+                    // MARK: - Navigation to Profile Setup if 2FA is not done
                     NavigationLink(destination: ProfileSetupView(), isActive: $navigateToProfileSetup) {
                         EmptyView()
                     }
@@ -113,6 +127,8 @@ struct EmailLoginView: View {
         }
     }
 
+    // MARK: - Firebase Authentication
+    /// Authenticates the user with email and password via Firebase Auth.
     func authenticateUser() {
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
             if let error = error {
@@ -126,6 +142,8 @@ struct EmailLoginView: View {
         }
     }
 
+    // MARK: - Fetch 2FA Status
+    /// Retrieves the user's 2FA status from Firestore and navigates accordingly.
     func fetch2FAStatus() {
         let db = Firestore.firestore()
         guard let uid = Auth.auth().currentUser?.uid else { return }

@@ -6,6 +6,7 @@ import FirebaseAuth
 struct EFTView: View {
     @Environment(\.dismiss) var dismiss
 
+    // User input states
     @State private var selectedBank: String = "Choose"
     @State private var showBankPicker = false
     @State private var bsb: String = ""
@@ -18,13 +19,15 @@ struct EFTView: View {
     @State private var showAccountError = false
     @State private var showNicknameError = false
 
-    // Panel allocation
+    // Panel allocation tracking
     @State private var allocatedPanels = 0
     @State private var leftPanels = 6
     @State private var selectedPanels = 1
 
+    // Total panel limit
     @State private var totalPanels = 6
 
+    // List of available banks
     let bankNames = [
         "Choose", "Westpac", "Commonwealth Bank", "ANZ", "NAB",
         "Macquarie Bank", "ING", "Suncorp", "Bank of Queensland", "Bendigo Bank"
@@ -36,7 +39,8 @@ struct EFTView: View {
 
             ScrollView {
                 VStack(spacing: 20) {
-                    // Logo
+
+                    // Centered logo
                     HStack {
                         Spacer()
                         Image("SolarCloudLogo")
@@ -45,7 +49,7 @@ struct EFTView: View {
                         Spacer()
                     }
 
-                    // Title and Back
+                    // Page title and back button
                     HStack(spacing: 10) {
                         Button { dismiss() } label: {
                             Image(systemName: "chevron.left")
@@ -56,19 +60,18 @@ struct EFTView: View {
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
-
                         Spacer()
                     }
                     .padding(.horizontal)
 
-                    // Description
+                    // Subtitle
                     Text("Enter the bank account details where you would like your disbursements magically appear.")
                         .foregroundColor(.gray)
                         .font(.subheadline)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
 
-                    // Allocated Panels
+                    // Panel summary (allocated / left)
                     HStack {
                         Spacer()
                         VStack {
@@ -105,7 +108,7 @@ struct EFTView: View {
                         Spacer()
                     }
 
-                    // Panel Selector
+                    // Panel count selector
                     VStack(spacing: 4) {
                         Text("Panels")
                             .foregroundColor(.white)
@@ -139,8 +142,9 @@ struct EFTView: View {
                         .cornerRadius(12)
                     }
 
-                    // Form Fields
+                    // Bank details form
                     VStack(alignment: .leading, spacing: 10) {
+
                         // Bank Name Picker
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Bank name")
@@ -172,7 +176,7 @@ struct EFTView: View {
                             }
                         }
 
-                        // BSB
+                        // BSB Field
                         VStack(alignment: .leading, spacing: 4) {
                             Text("BSB")
                                 .foregroundColor(.gray)
@@ -194,7 +198,7 @@ struct EFTView: View {
                             }
                         }
 
-                        // Account Number
+                        // Account Number Field
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Account number")
                                 .foregroundColor(.gray)
@@ -216,7 +220,7 @@ struct EFTView: View {
                             }
                         }
 
-                        // Nickname
+                        // Nickname Field
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Nickname")
                                 .foregroundColor(.gray)
@@ -264,8 +268,9 @@ struct EFTView: View {
         .navigationBarBackButtonHidden(true)
     }
 
-    // MARK: - Functions
+    // Handle form submission and validation
     func handleAdd() {
+        // Validate fields
         showBankError = selectedBank == "Choose"
         showBsbError = bsb.trimmingCharacters(in: .whitespaces).isEmpty
         showAccountError = accountNumber.trimmingCharacters(in: .whitespaces).isEmpty
@@ -273,6 +278,7 @@ struct EFTView: View {
 
         guard !showBankError && !showBsbError && !showAccountError && !showNicknameError else { return }
 
+        // Prepare data for Firestore
         let data: [String: Any] = [
             "bank": selectedBank,
             "bsb": bsb,
@@ -282,6 +288,7 @@ struct EFTView: View {
             "kilowatt": Double(selectedPanels) * 0.85
         ]
 
+        // Save to Firestore under current user
         guard let uid = Auth.auth().currentUser?.uid else { return }
 
         Firestore.firestore()
@@ -296,6 +303,7 @@ struct EFTView: View {
             }
     }
 
+    // Fetch current panel allocations from all sources
     func fetchAllocations() {
         allocatedPanels = 0
         guard let uid = Auth.auth().currentUser?.uid else { return }
@@ -332,11 +340,13 @@ struct EFTView: View {
             group.leave()
         }
 
+        // Once all fetches are complete, update remaining panels
         group.notify(queue: .main) {
             leftPanels = max(0, totalPanels - allocatedPanels)
         }
     }
 
+    // Bottom sheet for selecting a bank
     var BankPickerSheet: some View {
         ZStack {
             Color("AccentColor3").ignoresSafeArea()
@@ -372,7 +382,4 @@ struct EFTView: View {
         }
         .presentationDetents([.medium])
     }
-}
-#Preview {
-    EFTView()
 }

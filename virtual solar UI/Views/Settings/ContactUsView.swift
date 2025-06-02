@@ -1,11 +1,15 @@
+
 import SwiftUI
 import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 
+/// ContactUsView allows users to submit their name, preferred contact method,
+/// and a message to the support team. It stores data to Firestore and
+/// redirects to a Thank You screen upon success.
 struct ContactUsView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var appState: AppState // ✅ VERY IMPORTANT
+    @EnvironmentObject var appState: AppState // Used for shared app state transitions
 
     @State private var name: String = ""
     @State private var selectedMethod: String = "Phone"
@@ -13,13 +17,13 @@ struct ContactUsView: View {
     @State private var message: String = ""
     @State private var navigateToThankYou = false
 
-    let methods = ["Phone", "Email"]
+    let methods = ["Phone", "Email"] // Available contact methods
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Logo
+                    // Logo header
                     HStack {
                         Spacer()
                         Image("SolarCloudLogo")
@@ -30,7 +34,7 @@ struct ContactUsView: View {
                     }
                     .padding(.top)
 
-                    // Custom Back + Heading
+                    // Back button and screen title
                     HStack(spacing: 10) {
                         Button(action: {
                             dismiss()
@@ -49,7 +53,7 @@ struct ContactUsView: View {
                     }
                     .padding(.horizontal)
 
-                    // Phone number
+                    // Static phone info
                     Text("ph. 02 8579 2000")
                         .font(.title3)
                         .fontWeight(.bold)
@@ -57,7 +61,7 @@ struct ContactUsView: View {
                         .padding(.horizontal)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    // Your Name
+                    // User's name input
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Your name")
                             .foregroundColor(.gray)
@@ -70,7 +74,7 @@ struct ContactUsView: View {
                     }
                     .padding(.horizontal)
 
-                    // Preferred Contact Method
+                    // Preferred contact method selection
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Preferred contact method")
                             .foregroundColor(.gray)
@@ -98,8 +102,9 @@ struct ContactUsView: View {
                     }
                     .padding(.horizontal)
 
-                    // Contact Input Field
+                    // Contact input field based on method
                     if selectedMethod == "Phone" {
+                        // Phone input
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Number you wish us to contact you on:")
                                 .foregroundColor(.gray)
@@ -113,6 +118,7 @@ struct ContactUsView: View {
                         }
                         .padding(.horizontal)
                     } else {
+                        // Email input
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Email address you wish us to contact by")
                                 .foregroundColor(.gray)
@@ -126,6 +132,7 @@ struct ContactUsView: View {
                         }
                         .padding(.horizontal)
 
+                        // Message box
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Your message")
                                 .foregroundColor(.gray)
@@ -145,7 +152,7 @@ struct ContactUsView: View {
                         .padding(.horizontal)
                     }
 
-                    // Submit Button
+                    // Submit button
                     Button(action: {
                         handleSubmit()
                     }) {
@@ -162,6 +169,7 @@ struct ContactUsView: View {
 
                     Spacer(minLength: 30)
 
+                    // Navigation link to thank you page
                     NavigationLink(destination: ThankyouView().environmentObject(appState), isActive: $navigateToThankYou) {
                         EmptyView()
                     }
@@ -173,6 +181,7 @@ struct ContactUsView: View {
         }
     }
 
+    /// Validates inputs and submits the contact request to Firestore
     func handleSubmit() {
         guard !name.isEmpty, !contactInput.isEmpty else {
             print("❌ Please fill all fields")
@@ -198,7 +207,7 @@ struct ContactUsView: View {
                     print("❌ Failed to save contact request: \(error.localizedDescription)")
                 } else {
                     print("✅ Contact request saved successfully")
-                    navigateToThankYou = true // ✅ Go to ThankyouView
+                    navigateToThankYou = true
                 }
             }
     }
