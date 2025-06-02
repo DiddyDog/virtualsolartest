@@ -36,18 +36,34 @@
 		69286D542DB9E261009D0927 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 69286D532DB9E261009D0927 /* GoogleSignInSwift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		692F006D2DEE12CC001D7F3F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 04F3C04E2D70138800234B5D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 04F3C0552D70138800234B5D;
+			remoteInfo = "virtual solar UI";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0455F6D32D856FD8004424E8 /* virtual solar UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "virtual solar UI.xcodeproj"; sourceTree = "<group>"; };
 		0455F72F2D8571E7004424E8 /* virtual solar UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "virtual solar UI.xcodeproj"; sourceTree = "<group>"; };
 		04EB6A8E2D85463C00359050 /* virtual solar UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "virtual solar UI.xcodeproj"; sourceTree = "<group>"; };
 		04EB6B252D856EE700359050 /* virtual solar UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "virtual solar UI.xcodeproj"; sourceTree = "<group>"; };
 		04F3C0562D70138800234B5D /* virtual solar UI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "virtual solar UI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		692F00672DEE12CC001D7F3F /* virtual solar UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "virtual solar UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		04F3C0582D70138800234B5D /* virtual solar UI */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "virtual solar UI";
+			sourceTree = "<group>";
+		};
+		692F00682DEE12CC001D7F3F /* virtual solar UITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "virtual solar UITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -87,6 +103,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		692F00642DEE12CC001D7F3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -122,6 +145,7 @@
 			isa = PBXGroup;
 			children = (
 				04F3C0582D70138800234B5D /* virtual solar UI */,
+				692F00682DEE12CC001D7F3F /* virtual solar UITests */,
 				04F3C0572D70138800234B5D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -130,6 +154,7 @@
 			isa = PBXGroup;
 			children = (
 				04F3C0562D70138800234B5D /* virtual solar UI.app */,
+				692F00672DEE12CC001D7F3F /* virtual solar UITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -186,6 +211,29 @@
 			productReference = 04F3C0562D70138800234B5D /* virtual solar UI.app */;
 			productType = "com.apple.product-type.application";
 		};
+		692F00662DEE12CC001D7F3F /* virtual solar UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 692F006F2DEE12CC001D7F3F /* Build configuration list for PBXNativeTarget "virtual solar UITests" */;
+			buildPhases = (
+				692F00632DEE12CC001D7F3F /* Sources */,
+				692F00642DEE12CC001D7F3F /* Frameworks */,
+				692F00652DEE12CC001D7F3F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				692F006E2DEE12CC001D7F3F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				692F00682DEE12CC001D7F3F /* virtual solar UITests */,
+			);
+			name = "virtual solar UITests";
+			packageProductDependencies = (
+			);
+			productName = "virtual solar UITests";
+			productReference = 692F00672DEE12CC001D7F3F /* virtual solar UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -198,6 +246,10 @@
 				TargetAttributes = {
 					04F3C0552D70138800234B5D = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					692F00662DEE12CC001D7F3F = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 04F3C0552D70138800234B5D;
 					};
 				};
 			};
@@ -239,12 +291,20 @@
 			projectRoot = "";
 			targets = (
 				04F3C0552D70138800234B5D /* virtual solar UI */,
+				692F00662DEE12CC001D7F3F /* virtual solar UITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		04F3C0542D70138800234B5D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		692F00652DEE12CC001D7F3F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -261,7 +321,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		692F00632DEE12CC001D7F3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		692F006E2DEE12CC001D7F3F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 04F3C0552D70138800234B5D /* virtual solar UI */;
+			targetProxy = 692F006D2DEE12CC001D7F3F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		04F3C0622D70138B00234B5D /* Debug */ = {
@@ -445,6 +520,38 @@
 			};
 			name = Release;
 		};
+		692F00702DEE12CC001D7F3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Solar-Cloud.virtual-solar-UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "virtual solar UI";
+			};
+			name = Debug;
+		};
+		692F00712DEE12CC001D7F3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Solar-Cloud.virtual-solar-UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "virtual solar UI";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -462,6 +569,15 @@
 			buildConfigurations = (
 				04F3C0652D70138B00234B5D /* Debug */,
 				04F3C0662D70138B00234B5D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		692F006F2DEE12CC001D7F3F /* Build configuration list for PBXNativeTarget "virtual solar UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				692F00702DEE12CC001D7F3F /* Debug */,
+				692F00712DEE12CC001D7F3F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

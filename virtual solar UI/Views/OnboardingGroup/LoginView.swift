@@ -66,14 +66,17 @@ struct LoginView: View {
                         SocialLoginButton(title: "Continue with Google", icon: "GoogleIcon") {
                             signInWithGoogle()
                         }
+                        .accessibilityIdentifier("googleButton")
 
                         SocialLoginButton(title: "Continue with Apple", icon: "AppleIcon") {
                             signInWithApple()
                         }
+                        .accessibilityIdentifier("appleButton")
 
                         SocialLoginButton(title: "Continue with Facebook", icon: "FacebookIcon") {
                             signInWithFacebook()
                         }
+                        .accessibilityIdentifier("facebookButton")
                     }
 
                     // MARK: - Email Login Options
@@ -83,6 +86,7 @@ struct LoginView: View {
                                 .font(Font.custom("Poppins", size: 16))
                                 .foregroundColor(.white)
                         }
+                        .accessibilityIdentifier("emailSignUpButton")
 
                         Spacer()
 
@@ -92,6 +96,7 @@ struct LoginView: View {
                                 .foregroundColor(.white)
                                 .bold()
                         }
+                        .accessibilityIdentifier("loginButton")
                     }
                     .padding(.horizontal, 40)
                     .padding(.top, 10)
@@ -241,6 +246,7 @@ struct SlideView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(height: 70)
+                .accessibilityIdentifier("slide_image_\(data.image)")
 
             Text(data.title)
                 .font(Font.custom("PoppinsSemiBold", size: 20))
@@ -250,6 +256,7 @@ struct SlideView: View {
                 .padding(.top, 10)
                 .minimumScaleFactor(0.5)
                 .lineLimit(2)
+                .accessibilityIdentifier("slide_title_\(data.title)")
 
             Text(data.description)
                 .font(Font.custom("Poppins", size: 16))
@@ -257,7 +264,9 @@ struct SlideView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 30)
                 .padding(.top, 5)
+                .accessibilityIdentifier("slide_description_\(data.description)")
         }
+        .accessibilityIdentifier("slide_\(data.image)")
     }
 }
 

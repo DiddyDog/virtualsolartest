@@ -62,6 +62,7 @@ struct EmailLoginView: View {
                                     .stroke(isEmailFocused ? Color("AccentColor1") : Color.clear, lineWidth: 2)
                             )
                             .focused($isEmailFocused)
+                            .accessibilityIdentifier("emailField")
 
                         Text("Password")
                             .foregroundColor(.gray)
@@ -81,6 +82,7 @@ struct EmailLoginView: View {
                                     .stroke(isPasswordFocused ? Color("AccentColor1") : Color.clear, lineWidth: 2)
                             )
                             .focused($isPasswordFocused)
+                            .accessibilityIdentifier("passwordField")
                     }
 
                     // MARK: - Login Button
@@ -99,6 +101,7 @@ struct EmailLoginView: View {
                         }
                     }
                     .padding(.top, 30)
+                    .accessibilityIdentifier("loginButton")
 
                     // MARK: - Error Message
                     if wrongUsername > 0 || wrongPassword > 0 {
