@@ -1,71 +1,88 @@
 import SwiftUI
+import Firebase
+import FirebaseFirestore
 
+/// View that shows the pending panel state and allows users to calculate their potential solar savings.
 struct PendingDashboardView: View {
-    @State private var selectedTab: String = "Pending"
+    
+    /// User's electricity bill input.
     @State private var billAmount: String = ""
+    
+    /// Controls navigation to the calculator screen.
+    @State private var navigateToCalculator = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Header Section
-            HeaderView(selectedTab: $selectedTab)
+        NavigationStack {
+            VStack(spacing: 30) {
 
-            Spacer()
+                // MARK: - Info Card: No pending allocations
+                PendingInfoCard()
 
-            // No Pending Info Card
-            PendingInfoCard()
+                // MARK: - Calculator Section
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "list.bullet.rectangle")
+                            .foregroundColor(.mint)
+                        Text("Calculator")
+                            .font(.title2)
+                            .bold()
+                            .foregroundColor(.white)
+                    }
 
-            // Solar Savings Input Card
-            SavingsInputCard(billAmount: $billAmount)
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Find out your solar savings")
+                            .foregroundColor(.white)
+                            .font(.headline)
 
-            Spacer()
+                        Text("Enter in your Electricity Bill")
+                            .foregroundColor(.white)
 
-            // Bottom Tab Bar
-            BottomTabBarView()
-        }
-        .background(Color(red: 24/255, green: 26/255, blue: 36/255))
-        .edgesIgnoringSafeArea(.bottom)
-    }
-}
+                        // User input for electricity bill
+                        TextField("$...", text: $billAmount)
+                            .keyboardType(.numberPad)
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
 
-struct HeaderView: View {
-    @Binding var selectedTab: String
+                        // Hidden NavigationLink triggered by `navigateToCalculator`
+                        NavigationLink(
+                            destination: CalculatorView(initialBillAmount: billAmount),
+                            isActive: $navigateToCalculator
+                        ) {
+                            EmptyView()
+                        }
 
-    var body: some View {
-        VStack(spacing: 16) {
-            // Header Logo
-            Image("solar_logo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 40, height: 40)
-                .padding(.top, 20)
+                        // Calculate button
+                        Button(action: {
+                            navigateToCalculator = true
+                        }) {
+                            Text("Calculate")
+                                .foregroundColor(.black)
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color("AccentColor2"))
+                                .cornerRadius(30)
+                        }
+                    }
+                    .padding()
+                    .background(Color.black.opacity(0.4))
+                    .cornerRadius(20)
+                }
+                .padding(.horizontal)
 
-            // Title
-            HStack {
-                Image(systemName: "calendar")
-                    .foregroundColor(.mint)
-                Text("My panels")
-                    .foregroundColor(.white)
-                    .font(.title3.bold())
                 Spacer()
             }
-            .padding(.horizontal)
-
-            // Tab Switch
-            HStack(spacing: 0) {
-                TabButton(title: "Active", isSelected: selectedTab == "Active") {
-                    selectedTab = "Active"
-                }
-                TabButton(title: "Pending", isSelected: selectedTab == "Pending") {
-                    selectedTab = "Pending"
-                }
-            }
-            .padding(.horizontal)
-            .background(Color.gray.opacity(0.2))
-            .cornerRadius(10)
+            .padding(.top)
+            .background(Color("BackgroundColor").ignoresSafeArea())
         }
     }
 }
 
+// MARK: - Reusable Tab Button Component
+
+/// A styled toggle button for switching views or tabs.
 struct TabButton: View {
     var title: String
     var isSelected: Bool
@@ -79,26 +96,48 @@ struct TabButton: View {
                 .background(isSelected ? Color.mint.opacity(0.3) : Color.clear)
                 .foregroundColor(isSelected ? .mint : .white.opacity(0.6))
                 .cornerRadius(8)
+                .frame(width: 140)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.mint, lineWidth: isSelected ? 1.8 : 1)
+                )
         }
     }
 }
 
+// MARK: - Pending Info Card
+
+/// A view that informs the user they have no pending panels.
 struct PendingInfoCard: View {
     var body: some View {
         VStack(spacing: 12) {
-            Text("You currently\nhave no pending\npanels.")
+            Text("You currently have no pending panels.")
                 .multilineTextAlignment(.center)
-                .font(.title2.bold())
+                .font(.body)
                 .foregroundColor(.white)
 
             Group {
                 Text("Visit our ") +
                 Text("website").underline() +
-                Text(" to see\navailable panels")
+                Text(" to see available panels")
             }
+            .font(.subheadline)
             .multilineTextAlignment(.center)
             .foregroundColor(.white.opacity(0.8))
-            .font(.subheadline)
+
+            Button(action: {
+                // Add action if needed (e.g., open URL)
+            }) {
+                Text("Take me there")
+                    .foregroundColor(.black)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color("AccentColor2"))
+                    .cornerRadius(30)
+                    .frame(width: 160)
+            }
+            .padding(.top, 8)
         }
         .padding()
         .frame(maxWidth: .infinity)
@@ -108,61 +147,7 @@ struct PendingInfoCard: View {
     }
 }
 
-struct SavingsInputCard: View {
-    @Binding var billAmount: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Find out your solar\nsavings*")
-                .foregroundColor(.white)
-                .font(.title3.bold())
-
-            Text("Enter in your Electricity Bill")
-                .foregroundColor(.white)
-
-            TextField("$...", text: $billAmount)
-                .padding()
-                .background(Color.gray.opacity(0.2))
-                .foregroundColor(.white)
-                .cornerRadius(10)
-        }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .background(Color.black.opacity(0.4))
-        .cornerRadius(20)
-        .padding(.horizontal)
-    }
-}
-
-struct BottomTabBarView: View {
-    var body: some View {
-        HStack {
-            BottomTabBarItem(icon: "calendar", title: "Dashboard", isSelected: true)
-            BottomTabBarItem(icon: "doc.text", title: "Tracker")
-            BottomTabBarItem(icon: "plus.slash.minus", title: "Calculator")
-            BottomTabBarItem(icon: "person", title: "More")
-        }
-        .padding(.top)
-        .padding(.bottom, 10)
-        .background(Color.black.opacity(0.3))
-        .font(.caption)
-    }
-}
-
-struct BottomTabBarItem: View {
-    var icon: String
-    var title: String
-    var isSelected: Bool = false
-
-    var body: some View {
-        VStack {
-            Image(systemName: icon)
-            Text(title)
-        }
-        .foregroundColor(isSelected ? .mint : .white)
-        .frame(maxWidth: .infinity)
-    }
-}
+// MARK: - Preview
 
 #Preview {
     PendingDashboardView()

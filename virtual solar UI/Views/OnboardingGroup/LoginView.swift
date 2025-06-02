@@ -1,22 +1,29 @@
+
 import SwiftUI
 import FirebaseAuth
 import GoogleSignInSwift
 import GoogleSignIn
 import FacebookLogin
 import FirebaseCore
+import AuthenticationServices
+import FirebaseFirestore
 
+// MARK: - Login View
+
+/// Displays the landing screen with slide content and social/email login options.
 struct LoginView: View {
-    
+
     @EnvironmentObject var appState: AppState
-    
+
     let slides = [
         SlideData(image: "Slide1", title: "Solar anywhere, anytime", description: "If you rent or own an apartment or house, or you own a business, SolarCloud works."),
         SlideData(image: "Slide2", title: "Lower energy bills", description: "If you rent or own an apartment or house, or you own business, SolarCloud works."),
         SlideData(image: "Slide3", title: "We make everything easier", description: "If you rent or own an apartment or house, or you own business, SolarCloud works.")
     ]
-    
+
     @State private var selectedIndex = 0
     @State private var loginError: String?
+    @State private var appleSignInDelegate: AppleSignInDelegate? = nil
 
     var body: some View {
         NavigationStack {
@@ -31,12 +38,10 @@ struct LoginView: View {
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
-                
-                
-                
+
                 VStack {
                     Spacer()
-                    
+
                     TabView(selection: $selectedIndex) {
                         ForEach(0..<slides.count, id: \.self) { index in
                             SlideView(data: slides[index])
@@ -44,7 +49,7 @@ struct LoginView: View {
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     .frame(height: 250)
-                    
+
                     HStack(spacing: 5) {
                         ForEach(0..<slides.count, id: \.self) { index in
                             Circle()
@@ -53,34 +58,34 @@ struct LoginView: View {
                         }
                     }
                     .padding(.top, 10)
-                    
+
                     Spacer()
-                    
-                    // Social media login
+
+                    // MARK: - Social Media Login Buttons
                     VStack(spacing: 10) {
                         SocialLoginButton(title: "Continue with Google", icon: "GoogleIcon") {
                             signInWithGoogle()
                         }
-                        
+
                         SocialLoginButton(title: "Continue with Apple", icon: "AppleIcon") {
-                            // Apple login not implemented yet
+                            signInWithApple()
                         }
-                        
+
                         SocialLoginButton(title: "Continue with Facebook", icon: "FacebookIcon") {
                             signInWithFacebook()
                         }
                     }
-                    
-                    // Email login
+
+                    // MARK: - Email Login Options
                     HStack {
                         NavigationLink(destination: EmailSignUpView()) {
                             Text("Continue with email")
                                 .font(Font.custom("Poppins", size: 16))
                                 .foregroundColor(.white)
                         }
-                        
+
                         Spacer()
-                        
+
                         NavigationLink(destination: EmailLoginView()) {
                             Text("Login")
                                 .font(Font.custom("Poppins", size: 16))
@@ -90,10 +95,10 @@ struct LoginView: View {
                     }
                     .padding(.horizontal, 40)
                     .padding(.top, 10)
-                    
+
                     Spacer()
-                    
-                    // Error Message
+
+                    // MARK: - Login Error
                     if let error = loginError {
                         Text(error)
                             .font(Font.custom("Poppins", size: 14))
@@ -102,36 +107,28 @@ struct LoginView: View {
                     }
                 }
                 .padding()
-                
             }
         }
     }
-    
+
     // MARK: - Google Sign-In
     func signInWithGoogle() {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
-        
         let config = GIDConfiguration(clientID: clientID)
-        
         if let rootViewController = UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene }).first?.windows.first?.rootViewController {
-            
             GIDSignIn.sharedInstance.configuration = config
             GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { result, error in
                 if let error = error {
                     loginError = "Google login failed: \(error.localizedDescription)"
                     return
                 }
-                
                 guard let user = result?.user,
                       let idToken = user.idToken?.tokenString else {
                     loginError = "Google token missing"
                     return
                 }
-                
-                let credential = GoogleAuthProvider.credential(withIDToken: idToken,
-                                                               accessToken: user.accessToken.tokenString)
-                
+                let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
                 Auth.auth().signIn(with: credential) { _, error in
                     if let error = error {
                         loginError = "Firebase error: \(error.localizedDescription)"
@@ -142,7 +139,7 @@ struct LoginView: View {
             }
         }
     }
-    
+
     // MARK: - Facebook Login
     func signInWithFacebook() {
         let loginManager = LoginManager()
@@ -151,14 +148,11 @@ struct LoginView: View {
                 loginError = "Facebook login failed: \(error.localizedDescription)"
                 return
             }
-            
             guard let token = AccessToken.current?.tokenString else {
                 loginError = "Facebook token missing"
                 return
             }
-            
             let credential = FacebookAuthProvider.credential(withAccessToken: token)
-            
             Auth.auth().signIn(with: credential) { _, error in
                 if let error = error {
                     loginError = "Firebase error: \(error.localizedDescription)"
@@ -168,25 +162,86 @@ struct LoginView: View {
             }
         }
     }
+
+    // MARK: - Apple Sign-In
+    func signInWithApple() {
+        let provider = ASAuthorizationAppleIDProvider()
+        let request = provider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+
+        let delegate = AppleSignInDelegate(appState: appState, loginError: $loginError)
+        self.appleSignInDelegate = delegate
+
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        controller.delegate = delegate
+        controller.performRequests()
+    }
 }
 
-// MARK: - Slide & Social Button Views
+// MARK: - Apple Sign-In Delegate
+class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
+    let appState: AppState
+    let loginError: Binding<String?>
+
+    init(appState: AppState, loginError: Binding<String?>) {
+        self.appState = appState
+        self.loginError = loginError
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
+           let identityToken = appleIDCredential.identityToken,
+           let tokenString = String(data: identityToken, encoding: .utf8) {
+
+            let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: tokenString, accessToken: "")
+
+            Auth.auth().signIn(with: credential) { authResult, error in
+                if let error = error {
+                    self.loginError.wrappedValue = "Firebase error: \(error.localizedDescription)"
+                    return
+                }
+                guard let user = authResult?.user else { return }
+
+                let db = Firestore.firestore()
+                db.collection("users").document(user.uid).setData([
+                    "uid": user.uid,
+                    "email": user.email ?? "not_provided@apple.com",
+                    "name": "\(appleIDCredential.fullName?.givenName ?? "") \(appleIDCredential.fullName?.familyName ?? "")"
+                ], merge: true)
+
+                self.appState.isLoggedIn = true
+            }
+
+        } else {
+            loginError.wrappedValue = "Apple ID credential missing."
+        }
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        loginError.wrappedValue = "Apple Sign-In failed: \(error.localizedDescription)"
+    }
+}
+
+// MARK: - Supporting Views and Data Models
+
+/// Slide content model for the carousel.
 struct SlideData {
-    let image: String // String for custom image names
+    let image: String
     let title: String
     let description: String
 }
 
+/// View for displaying a single onboarding slide.
 struct SlideView: View {
     let data: SlideData
-    
+
     var body: some View {
         VStack {
-            Image(data.image) // Use custom image assets
+            Image(data.image)
                 .resizable()
                 .scaledToFit()
-                .frame(height: 70) // Adjust the size as needed
-            
+                .frame(height: 70)
+
             Text(data.title)
                 .font(Font.custom("PoppinsSemiBold", size: 20))
                 .fontWeight(.bold)
@@ -195,7 +250,7 @@ struct SlideView: View {
                 .padding(.top, 10)
                 .minimumScaleFactor(0.5)
                 .lineLimit(2)
-            
+
             Text(data.description)
                 .font(Font.custom("Poppins", size: 16))
                 .foregroundColor(.gray)
@@ -206,11 +261,12 @@ struct SlideView: View {
     }
 }
 
+/// Reusable social login button component.
 struct SocialLoginButton: View {
     var title: String
     var icon: String
     var action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack {
@@ -232,6 +288,7 @@ struct SocialLoginButton: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     LoginView()
 }

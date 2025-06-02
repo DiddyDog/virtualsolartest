@@ -1,8 +1,12 @@
 import SwiftUI
 
+/// The main dashboard view that allows users to toggle between active and pending energy data.
 struct DashboardView: View {
+    
+    /// Represents the currently selected tab.
     @State private var selectedTab: DashboardTab = .active
 
+    /// Enum representing the two dashboard states: Active and Pending.
     enum DashboardTab: String, CaseIterable, Hashable {
         case active = "Active"
         case pending = "Pending"
@@ -12,11 +16,13 @@ struct DashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
+
+                    // MARK: - Logo and Header
                     VStack(spacing: 12) {
                         Image("SolarCloudLogo")
                             .resizable()
                             .frame(width: 28.86, height: 50)
-                            .padding(.top, 64)
+                            .padding(.top, 1)
 
                         HStack(spacing: 8) {
                             Image("SolarIcon")
@@ -24,16 +30,18 @@ struct DashboardView: View {
                                 .fixedSize()
                                 .frame(width: 8, height: 8)
                                 .padding()
+
                             Text("Dashboard")
                                 .foregroundColor(.white)
                                 .font(.custom("Poppins", size: 20))
                                 .fontWeight(.semibold)
+
                             Spacer()
                         }
                         .padding(.horizontal)
                     }
 
-                    // Tab Switch
+                    // MARK: - Tab Switcher
                     HStack(spacing: 12) {
                         ForEach(DashboardTab.allCases, id: \.self) { tab in
                             Button(action: {
@@ -54,7 +62,7 @@ struct DashboardView: View {
                     }
                     .padding(.horizontal)
 
-                    // Conditional Views
+                    // MARK: - Conditional View Rendering
                     Group {
                         if selectedTab == .active {
                             ActiveDashboardView()
@@ -74,6 +82,7 @@ struct DashboardView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
     DashboardView()
 }

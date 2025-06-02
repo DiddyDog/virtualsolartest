@@ -1,32 +1,50 @@
-//
-//  CalculatorView.swift
-//  virtual solar UI
-//
-//  Created by Lachlan Jiang on 16/3/2025.
-//
-
 import SwiftUI
 
+/// View to calculate and display user's estimated solar savings based on their electricity bill.
 struct CalculatorView: View {
-    @State private var billAmount: String = "450"
     
+    /// The initial default bill amount shown when the view appears.
+    var initialBillAmount: String = "450"
+
+    /// User-entered bill amount.
+    @State private var billAmount: String = ""
+
+    /// Computed numeric value of the user's electricity bill.
+    var billValue: Double {
+        Double(billAmount) ?? 0
+    }
+
+    /// Fixed monthly solar payout value (this would be dynamic in a real implementation).
+    var solarPayout: Double {
+        250
+    }
+
+    /// Percentage of the bill that can be saved using solar payout.
+    var savingPercent: Double {
+        guard billValue > 0 else { return 0 }
+        return min(solarPayout / billValue, 1.0)
+    }
+
     var body: some View {
         ZStack {
-            Color("BackgroundColor")
-                .ignoresSafeArea()
-            
+            Color("BackgroundColor").ignoresSafeArea()
+
             ScrollView {
                 VStack(spacing: 24) {
-                    
+
+                    // MARK: - Logo and Header
                     VStack(spacing: 8) {
                         Image("SolarCloudLogo")
                             .resizable()
                             .frame(width: 28.86, height: 50.0)
-                            .padding(.top)
-                        
+                            .padding(.top, 1)
+
                         HStack {
-                            Image(systemName: "doc.text.magnifyingglass")
-                                .foregroundColor(.accentColor)
+                            Image("CalculatorIcon")
+                                .foregroundColor(Color("AccentColor1"))
+                                .fixedSize()
+                                .frame(width: 8, height: 8)
+                                .padding()
                             Text("Calculator")
                                 .font(.title2)
                                 .bold()
@@ -34,110 +52,140 @@ struct CalculatorView: View {
                             Spacer()
                         }
                     }
+
+                    // MARK: - Input Card
                     VStack(spacing: 12) {
-                        Text("Find out your solar saving")
-                            .font(.title2)
+                        Text("Find out your solar savings")
+                            .font(.title3)
                             .bold()
                             .foregroundColor(.white)
-                        
+
                         Text("Enter your Electricity Bill")
                             .foregroundColor(.gray)
-                        
+
                         TextField("450", text: $billAmount)
                             .keyboardType(.numberPad)
                             .padding()
-                            .background(Color.white.opacity(0.1))
+                            .background(Color("CardBackgroundColor"))
                             .cornerRadius(12)
                             .foregroundColor(.white)
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.2)))
-                        
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.2))
+                            )
                     }
                     .padding()
-                    .background(Color.black.opacity(0.3))
-                    .cornerRadius(16)
-                    
-                    Text("Solar saving\n$250 monthly*")
+                    .background(Color.black.opacity(0.4))
+                    .cornerRadius(20)
+
+                    // MARK: - Static Saving Info
+                    Text("Solar saving\n$250/month*")
                         .font(.title2)
                         .bold()
                         .multilineTextAlignment(.center)
                         .foregroundColor(.white)
-                        
-                    
-                    LazyVGrid(columns: [GridItem(), GridItem()], spacing: 12) {
-                        ForEach(0..<4) { _ in
-                            VStack(spacing: 8) {
-                                Text("This month\n saving")
-                                    .font(.caption)
-                                    .multilineTextAlignment(.center)
-                                    .foregroundColor(.white)
-                                Text("$234")
-                                    .font(.headline)
-                                    .foregroundColor(Color("AccentColor2"))
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.05))
-                            .cornerRadius(12)
-                        }
+
+                    // MARK: - Past Savings Grid
+                    LazyVGrid(columns: [GridItem(), GridItem()], spacing: 16) {
+                        SavingsBox(label: "This month", amount: "$234")
+                        SavingsBox(label: "Last month", amount: "$234")
+                        SavingsBox(label: "Last 3 months", amount: "$234")
+                        SavingsBox(label: "Last 6 months", amount: "$234")
                     }
+
+                    // MARK: - Circular Chart and Summary Info
                     HStack(alignment: .center, spacing: 24) {
-                        
                         ZStack {
                             Circle()
-                                .trim(from: 0, to: 0.35)
-                                .stroke(Color("AccentColor1"), lineWidth: 12)
+                                .trim(from: 0, to: savingPercent)
+                                .stroke(Color("AccentColor1"), lineWidth: 10)
                                 .rotationEffect(.degrees(-90))
-                            
-                            Text("35% \nsaving")
+                                .animation(.easeInOut(duration: 0.4), value: savingPercent)
+
+                            Text("\(Int(savingPercent * 100))% \nsaving")
                                 .font(.caption)
                                 .bold()
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(.white)
                         }
-                        .frame(width: 120, height: 120)
-                        
+                        .frame(width: 100, height: 100)
+
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 Text("Electricity bill")
                                 Spacer()
-                                Text("$\(billAmount)")
+                                Text("$\(Int(billValue))")
                                     .bold()
                                     .foregroundColor(Color("AccentColor2"))
                             }
                             HStack {
-                                Text("Solar Payout")
-                                    .foregroundColor(.white)
+                                Text("Solar payout")
                                 Spacer()
-                                Text("$250")
+                                Text("$\(Int(solarPayout))")
                                     .bold()
                                     .foregroundColor(Color("AccentColor2"))
                             }
                         }
+                        .foregroundColor(.white)
                     }
-                    .foregroundColor(.white)
                     .padding(.horizontal)
-                    
+
+                    Divider()
+                        .frame(height: 1)
+                        .background(Color.yellow.opacity(0.5))
+                        .padding(.horizontal)
+
+                    // MARK: - Disclaimer and Footer Note
                     VStack(spacing: 6) {
-                        Text("To eliminate your Electricity Bill visit our ")
-                            .foregroundColor(.gray)
-                        + Text("website")
-                            .foregroundColor(.blue)
-                            .underline()
-                        + Text(" to update your SolarCloud portfolio.")
-                        
-                        Text("*Terms and conditions of savings If you rent or own an apartment or house, or your own business, SolarCloud works")
+                        (
+                            Text("To eliminate your Electricity Bill visit our ")
+                            + Text("website").underline().foregroundColor(.blue)
+                            + Text(" to update your SolarCloud portfolio.")
+                        )
+                        .foregroundColor(.gray)
+                        .font(.footnote)
+                        .multilineTextAlignment(.center)
+
+                        Text("*Terms and conditions of savings If you rent or own an apartment or house, or you own business, SolarCloud works")
                             .font(.footnote)
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
-                            .padding(.top, 8)
+                            .padding(.top, 4)
                     }
                     .padding(.horizontal)
                 }
                 .padding()
             }
         }
+        .onAppear {
+            // Set the initial bill amount when the view loads.
+            billAmount = initialBillAmount
+        }
+        .navigationBarBackButtonHidden(true)
+    }
+}
+
+/// Reusable UI component to display a single savings box.
+struct SavingsBox: View {
+    var label: String
+    var amount: String
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.white)
+            Text(amount)
+                .font(.headline)
+                .foregroundColor(Color("AccentColor2"))
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(12)
     }
 }
 
 #Preview {
-    CalculatorView()
+    CalculatorView(initialBillAmount: "450")
 }
