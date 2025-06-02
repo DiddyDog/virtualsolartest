@@ -135,9 +135,9 @@ struct EmailLoginView: View {
                 let isVerified = document.data()?["is2FAVerified"] as? Bool ?? false
                 print("✅ 2FA status fetched: \(isVerified)")
                 if isVerified {
-                    appState.isLoggedIn = true // ✅ Direct to DashboardView
+                    appState.isLoggedIn = true
                 } else {
-                    self.navigateToProfileSetup = true // Show setup screen
+                    self.navigateToProfileSetup = true
                 }
             } else {
                 print("❌ No user document found, assuming 2FA not done")

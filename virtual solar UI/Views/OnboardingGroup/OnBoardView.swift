@@ -1,7 +1,4 @@
-//
-// Ongoing.swift
-//  VirtualSolar
-//
+
 //  Created by Abubakar Abbas on 5/3/2025.
 //
 
